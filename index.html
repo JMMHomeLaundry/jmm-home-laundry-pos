@@ -230,6 +230,18 @@ window.onload=function(){ window.print(); };
   popup.document.close();
 }
 
+
+function nextStatus(id){
+  const order = orders.find(o=>o.id===id);
+  if(!order) return;
+  const flow=["Received","Washing","Ready","Released"];
+  const i=flow.indexOf(order.status);
+  if(i<flow.length-1){
+    order.status=flow[i+1];
+    localStorage.setItem("jmmLaundryOrders",JSON.stringify(orders));
+    renderAll();
+  }
+}
 </script>
 </body>
 </html>

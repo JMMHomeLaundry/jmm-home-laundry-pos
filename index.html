@@ -52,7 +52,26 @@ input,select{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;fon
 </section>
 <section id="inventoryPage" class="hidden"><div class="panel"><h2>Inventory</h2><p style="color:#777">Inventory will be connected after the service/pricing module is finalized.</p></div></section>
 <section id="paymentsPage" class="hidden"><div class="panel"><h2>Payments</h2><div id="paymentsTable"></div></div></section>
-<section id="reportsPage" class="hidden"><div class="panel"><h2>Reports</h2><div id="reportContent"></div></div></section>
+<section id="reportsPage" class="hidden">
+<div class="panel">
+  <div class="sectionbar">
+    <div><h2>📊 Sales Reports</h2><div class="subtitle">Sales, collections and receivables</div></div>
+    <button class="btn" type="button" id="printReportBtn">🖨️ Print Report</button>
+  </div>
+  <div class="formgrid" style="margin-top:12px">
+    <div class="field"><label>From Date</label><input type="date" id="reportFrom"></div>
+    <div class="field"><label>To Date</label><input type="date" id="reportTo"></div>
+    <div class="field full" style="display:flex;gap:8px;flex-wrap:wrap;flex-direction:row;align-items:end">
+      <button class="btn secondary" type="button" data-report-range="today">Today</button>
+      <button class="btn secondary" type="button" data-report-range="7">Last 7 Days</button>
+      <button class="btn secondary" type="button" data-report-range="30">Last 30 Days</button>
+      <button class="btn secondary" type="button" data-report-range="all">All Time</button>
+      <button class="btn" type="button" id="applyReportBtn">Apply</button>
+    </div>
+  </div>
+</div>
+<div id="reportContent"></div>
+</section>
 <section id="settingsPage" class="hidden"><div class="panel"><h2>Service & Pricing</h2><p style="color:#777">JMM Home Laundry price list. For items with a ₱50–₱300 range, adjust the exact price per item in the order.</p><div class="pricegrid" id="priceList"></div></div><div class="panel"><h2>Business Settings</h2><p><b>Business:</b> JMM Home Laundry</p><p><b>Tagline:</b> Free Pick Up & Delivery</p></div></section>
 </main>
 
@@ -204,15 +223,117 @@ const now=new Date();const order={id:"JMM-"+now.getFullYear()+String(now.getMont
 orders.unshift(order);upsertCustomer(order.customer,order.contact,order.address);save();closeModal();e.target.reset();document.getElementById("items").innerHTML="";refreshCustomerSelect();alert("Order saved: "+order.id);showPage("orders")};
 function itemSummary(o){return o.items.map(i=>`${esc(i.name)} — ${i.qty} ${i.type}`).join("<br>")}
 function tableOrders(list=orders){if(!list.length)return '<div class="empty">No orders yet. Click “New Laundry Order” to create one.</div>';return `<table><thead><tr><th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead><tbody>${list.map(o=>`<tr><td>${esc(o.id)}</td><td>${esc(o.customer)}<br><small>${esc(o.contact)}</small></td><td>${itemSummary(o)}</td><td>${money(o.total)}</td><td>${money(o.paid)}</td><td>${money(o.balance)}</td><td><span class="status ${o.status.toLowerCase()}">${esc(o.status)}</span></td><td><div class="actions" style="display:flex;flex-wrap:wrap;gap:6px;min-width:250px"><button class="btn" type="button" onclick="printReceipt('${esc(o.id)}')">🖨️ Print Receipt</button><button class="btn" type="button" onclick="previousStatus('${esc(o.id)}')">⬅️ Previous Status</button><button class="btn" type="button" onclick="nextStatus('${esc(o.id)}')">➡️ Next Status</button></div></td></tr>`).join("")}</tbody></table>`}
+
+function isoDateLocal(d){
+  const x=new Date(d);
+  const y=x.getFullYear(),m=String(x.getMonth()+1).padStart(2,"0"),day=String(x.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+function reportDateRange(){
+  const from=document.getElementById("reportFrom").value;
+  const to=document.getElementById("reportTo").value;
+  return {from:from||"0000-01-01",to:to||"9999-12-31"};
+}
+function renderReport(){
+  const {from,to}=reportDateRange();
+  const filtered=orders.filter(o=>{
+    const d=(o.date||"").slice(0,10);
+    return d>=from && d<=to;
+  });
+  const sales=filtered.reduce((s,o)=>s+Number(o.total||0),0);
+  const collected=filtered.reduce((s,o)=>s+Number(o.paid||0),0);
+  const balance=filtered.reduce((s,o)=>s+Number(o.balance||0),0);
+  const released=filtered.filter(o=>o.status==="Released").length;
+  const pending=filtered.length-released;
+
+  const methods={};
+  filtered.forEach(o=>{const k=o.paymentMethod||"Other";methods[k]=(methods[k]||0)+Number(o.paid||0)});
+
+  const services={};
+  filtered.forEach(o=>(o.items||[]).forEach(i=>{
+    const k=i.name||"Other";
+    services[k]=(services[k]||0)+Number(i.subtotal||0);
+  }));
+
+  const days={};
+  filtered.forEach(o=>{
+    const d=(o.date||"").slice(0,10);
+    if(!days[d]) days[d]={orders:0,sales:0,paid:0,balance:0};
+    days[d].orders++;
+    days[d].sales+=Number(o.total||0);
+    days[d].paid+=Number(o.paid||0);
+    days[d].balance+=Number(o.balance||0);
+  }));
+
+  const methodRows=Object.entries(methods).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${money(v)}</td></tr>`).join("");
+  const serviceRows=Object.entries(services).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${money(v)}</td></tr>`).join("");
+  const dayRows=Object.entries(days).sort((a,b)=>b[0].localeCompare(a[0])).map(([d,v])=>`<tr><td>${esc(d)}</td><td>${v.orders}</td><td>${money(v.sales)}</td><td>${money(v.paid)}</td><td>${money(v.balance)}</td></tr>`).join("");
+
+  document.getElementById("reportContent").innerHTML=`
+  <div class="cards" style="margin:15px 0">
+    <div class="card"><small>Orders</small><div class="value">${filtered.length}</div></div>
+    <div class="card"><small>Total Sales</small><div class="value">${money(sales)}</div></div>
+    <div class="card"><small>Total Collected</small><div class="value">${money(collected)}</div></div>
+    <div class="card"><small>Receivable</small><div class="value">${money(balance)}</div></div>
+  </div>
+  <div class="cards" style="margin-bottom:15px">
+    <div class="card"><small>Released Orders</small><div class="value">${released}</div></div>
+    <div class="card"><small>Pending Orders</small><div class="value">${pending}</div></div>
+    <div class="card"><small>Average Order</small><div class="value">${money(filtered.length?sales/filtered.length:0)}</div></div>
+    <div class="card"><small>Collection Rate</small><div class="value">${sales?((collected/sales)*100).toFixed(1):"0.0"}%</div></div>
+  </div>
+  <div class="cards" style="align-items:start">
+    <div class="panel">
+      <h3>💳 Payment Method</h3>
+      ${methodRows?`<table><thead><tr><th>Method</th><th>Collected</th></tr></thead><tbody>${methodRows}</tbody></table>`:'<div class="empty">No payments in this period.</div>'}
+    </div>
+    <div class="panel">
+      <h3>🧺 Sales by Service</h3>
+      ${serviceRows?`<table><thead><tr><th>Service / Item</th><th>Sales</th></tr></thead><tbody>${serviceRows}</tbody></table>`:'<div class="empty">No sales in this period.</div>'}
+    </div>
+  </div>
+  <div class="panel" style="margin-top:15px">
+    <h3>📅 Daily Sales</h3>
+    ${dayRows?`<table><thead><tr><th>Date</th><th>Orders</th><th>Sales</th><th>Collected</th><th>Balance</th></tr></thead><tbody>${dayRows}</tbody></table>`:'<div class="empty">No orders in this period.</div>'}
+  </div>`;
+}
+function setReportRange(type){
+  const now=new Date();
+  const todayStr=isoDateLocal(now);
+  let from=todayStr,to=todayStr;
+  if(type==="7"||type==="30"){
+    const d=new Date(now);
+    d.setDate(d.getDate()-(Number(type)-1));
+    from=isoDateLocal(d);
+  }else if(type==="all"){
+    from=orders.length?orders.map(o=>(o.date||"").slice(0,10)).filter(Boolean).sort()[0]||todayStr:todayStr;
+  }
+  document.getElementById("reportFrom").value=from;
+  document.getElementById("reportTo").value=to;
+  renderReport();
+}
+function printSalesReport(){
+  const {from,to}=reportDateRange();
+  const content=document.getElementById("reportContent").innerHTML;
+  const popup=window.open("","_blank","width=900,height=900");
+  if(!popup){alert("Please allow pop-ups for this site.");return}
+  popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>JMM Home Laundry Sales Report</title><style>
+  *{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#222;padding:20px}h1{text-align:center;margin:0 0 4px}p{text-align:center;margin:4px 0 18px;color:#666}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}.card,.panel{border:1px solid #ddd;padding:12px;border-radius:8px}.value{font-size:20px;font-weight:bold;margin-top:5px}table{width:100%;border-collapse:collapse;margin-top:8px;font-size:11px}th,td{border:1px solid #bbb;padding:6px;text-align:left}h3{margin:0 0 6px;font-size:14px}@media print{@page{size:A4 portrait;margin:10mm}.no-print{display:none}}</style></head><body><h1>JMM HOME LAUNDRY</h1><p>SALES REPORT • ${esc(from)} to ${esc(to)}</p>${content}<script>window.onload=function(){window.print();}</script></body></html>`);
+  popup.document.close();
+}
+
 function renderAll(){
 const t=today(),todays=orders.filter(o=>o.date.slice(0,10)===t),pending=orders.filter(o=>o.status!=="Released");document.getElementById("salesValue").textContent=money(todays.reduce((s,o)=>s+o.paid,0));document.getElementById("ordersValue").textContent=todays.length;document.getElementById("pendingValue").textContent=pending.length;document.getElementById("receivableValue").textContent=money(orders.reduce((s,o)=>s+o.balance,0));document.getElementById("recentOrders").innerHTML=tableOrders(orders.slice(0,8));document.getElementById("ordersTable").innerHTML=tableOrders();
 renderCustomers();
 document.getElementById("paymentsTable").innerHTML=orders.length?`<table><thead><tr><th>Date</th><th>Order</th><th>Customer</th><th>Method</th><th>Paid</th><th>Balance</th></tr></thead><tbody>${orders.map(o=>`<tr><td>${o.date.slice(0,10)}</td><td>${esc(o.id)}</td><td>${esc(o.customer)}</td><td>${esc(o.paymentMethod)}</td><td>${money(o.paid)}</td><td>${money(o.balance)}</td></tr>`).join("")}</tbody></table>`:'<div class="empty">No payments yet.</div>';
-let gross=orders.reduce((s,o)=>s+o.total,0),paid=orders.reduce((s,o)=>s+o.paid,0);document.getElementById("reportContent").innerHTML=`<p><b>Total Orders:</b> ${orders.length}</p><p><b>Total Sales:</b> ${money(gross)}</p><p><b>Total Collected:</b> ${money(paid)}</p><p><b>Outstanding Balance:</b> ${money(gross-paid)}</p>`;
+setReportRange("today");
 document.getElementById("priceList").innerHTML=catalog.map(x=>`<div class="pricecard"><small>${x.category} • ${x.type}</small><br><b>${esc(x.name)}</b><br>Price: ${esc(x.label)}</div>`).join("");
 }
 function showPage(page){["dashboard","orders","customers","inventory","payments","reports","settings"].forEach(p=>document.getElementById(p+"Page").classList.toggle("hidden",p!==page));document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===page));document.getElementById("pageTitle").textContent=page.charAt(0).toUpperCase()+page.slice(1)}
-document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>showPage(b.dataset.page));document.querySelectorAll("[data-page-jump]").forEach(b=>b.onclick=()=>showPage(b.dataset.pageJump));
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>showPage(b.dataset.page));document.querySelectorAll("[data-report-range]").forEach(b=>b.onclick=()=>setReportRange(b.dataset.reportRange));
+document.getElementById("applyReportBtn").onclick=renderReport;
+document.getElementById("printReportBtn").onclick=printSalesReport;
+document.querySelectorAll("[data-page-jump]").forEach(b=>b.onclick=()=>showPage(b.dataset.pageJump));
 document.getElementById("orderSearch").oninput=e=>{let q=e.target.value.toLowerCase();document.getElementById("ordersTable").innerHTML=tableOrders(orders.filter(o=>[o.id,o.customer,o.contact].join(" ").toLowerCase().includes(q)))};
 renderAll();
 

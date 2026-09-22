@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JMM Home Laundry POS</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f1f7;color:#29232d}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:#6b1fa8;color:white;padding:22px 16px}
+.logo{font-size:21px;font-weight:700;margin:4px 10px 4px}.tag{font-size:11px;opacity:.8;margin:0 10px 25px}
+.nav button{display:block;width:100%;border:0;background:transparent;color:white;text-align:left;padding:13px 14px;border-radius:9px;margin:4px 0;font-size:14px;cursor:pointer}
+.nav button:hover,.nav button.active{background:#842fc1}
+.main{margin-left:240px;padding:28px;min-height:100vh}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+h1{margin:0;font-size:28px}.subtitle{color:#746b78;margin-top:5px}
+.btn{border:0;border-radius:9px;padding:11px 16px;background:#6b1fa8;color:white;cursor:pointer;font-weight:600}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
+.card{background:white;border-radius:14px;padding:20px;box-shadow:0 3px 12px #0000000b}
+.card small{color:#777}.value{font-size:26px;font-weight:700;margin-top:8px}
+.panel{background:white;border-radius:14px;padding:20px;box-shadow:0 3px 12px #0000000b;margin-bottom:20px}
+.panel h2{font-size:18px;margin:0 0 15px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:12px;border-bottom:1px solid #eee;font-size:14px}
+.status{padding:5px 9px;border-radius:20px;background:#eee;font-size:12px}
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.quick button{padding:18px;border:1px dashed #b78ccf;background:#faf6fc;border-radius:10px;cursor:pointer;color:#5c2182;font-weight:600}
+@media(max-width:850px){.sidebar{width:75px}.logo,.tag{display:none}.main{margin-left:75px;padding:18px}.nav button{font-size:0;text-align:center}.nav button::first-letter{font-size:20px}.cards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.cards,.quick{grid-template-columns:1fr}.header{display:block}.header .btn{margin-top:12px}}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="logo">JMM HOME LAUNDRY</div>
+  <div class="tag">FREE PICK UP & DELIVERY</div>
+  <nav class="nav">
+    <button class="active">🏠 Dashboard</button>
+    <button>🧺 New Laundry Order</button>
+    <button>📋 Orders</button>
+    <button>👥 Customers</button>
+    <button>📦 Inventory</button>
+    <button>💰 Payments</button>
+    <button>📊 Reports</button>
+    <button>⚙️ Settings</button>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="header">
+    <div>
+      <h1>Dashboard</h1>
+      <div class="subtitle">Welcome to JMM Home Laundry POS</div>
+    </div>
+    <button class="btn" onclick="alert('New Laundry Order module — next step')">+ New Laundry Order</button>
+  </div>
+
+  <section class="cards">
+    <div class="card"><small>Today's Sales</small><div class="value">₱0.00</div></div>
+    <div class="card"><small>Today's Orders</small><div class="value">0</div></div>
+    <div class="card"><small>Pending Orders</small><div class="value">0</div></div>
+    <div class="card"><small>Receivable</small><div class="value">₱0.00</div></div>
+  </section>
+
+  <section class="panel">
+    <h2>Quick Actions</h2>
+    <div class="quick">
+      <button onclick="alert('New Laundry Order — coming next')">🧺 New Laundry Order</button>
+      <button onclick="alert('Customer module — coming next')">👥 Add Customer</button>
+      <button onclick="alert('Inventory module — coming next')">📦 Add Inventory</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Recent Orders</h2>
+    <table>
+      <thead><tr><th>Order #</th><th>Customer</th><th>Service</th><th>Total</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td colspan="5" style="text-align:center;color:#888;padding:30px">No orders yet</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>

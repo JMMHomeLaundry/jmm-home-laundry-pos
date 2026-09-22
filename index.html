@@ -8,143 +8,122 @@
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f6f2f8;color:#29232d}
 .sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:#6b1fa8;color:#fff;padding:22px 16px;z-index:5}
 .logo{font-size:20px;font-weight:700;margin:4px 10px}.tag{font-size:11px;opacity:.82;margin:5px 10px 24px}
-.nav button{display:block;width:100%;border:0;background:transparent;color:#fff;text-align:left;padding:12px 14px;border-radius:9px;margin:4px 0;font-size:14px;cursor:pointer}
-.nav button:hover,.nav button.active{background:#842fc1}
+.nav button{display:block;width:100%;border:0;background:transparent;color:#fff;text-align:left;padding:12px 14px;border-radius:9px;margin:4px 0;font-size:14px;cursor:pointer}.nav button:hover,.nav button.active{background:#842fc1}
 .main{margin-left:240px;padding:28px;min-height:100vh}.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
-h1{margin:0;font-size:28px}.subtitle{color:#766c7b;margin-top:5px}.btn{border:0;border-radius:9px;padding:11px 16px;background:#6b1fa8;color:#fff;cursor:pointer;font-weight:600}
-.btn.secondary{background:#eee;color:#4b4050}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:20px}
-.card,.panel{background:#fff;border-radius:14px;padding:20px;box-shadow:0 3px 12px #0000000b}.card small{color:#777}.value{font-size:25px;font-weight:700;margin-top:7px}
-.panel{margin-bottom:20px}.panel h2{font-size:18px;margin:0 0 15px}
+h1{margin:0;font-size:28px}.subtitle{color:#766c7b;margin-top:5px}.btn{border:0;border-radius:9px;padding:11px 16px;background:#6b1fa8;color:#fff;cursor:pointer;font-weight:600}.btn.secondary{background:#eee;color:#4b4050}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:20px}.card,.panel{background:#fff;border-radius:14px;padding:20px;box-shadow:0 3px 12px #0000000b}.card small{color:#777}.value{font-size:25px;font-weight:700;margin-top:7px}.panel{margin-bottom:20px}.panel h2{font-size:18px;margin:0 0 15px}
 .quick{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.quick button{padding:17px;border:1px dashed #b78ccf;background:#faf6fc;border-radius:10px;cursor:pointer;color:#5c2182;font-weight:600}
-table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px;border-bottom:1px solid #eee;font-size:13px}th{color:#6d6370}
-.status{padding:5px 9px;border-radius:20px;background:#eee;font-size:11px}.status.ready{background:#e7f7ea;color:#16752c}.status.released{background:#e9f0ff;color:#2455a5}
-.modal{display:none;position:fixed;inset:0;background:#0008;z-index:10;align-items:center;justify-content:center;padding:15px}.modal.show{display:flex}
-.modalbox{background:#fff;border-radius:16px;width:min(760px,100%);max-height:92vh;overflow:auto;padding:24px}.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px;border-bottom:1px solid #eee;font-size:13px}th{color:#6d6370}.status{padding:5px 9px;border-radius:20px;background:#eee;font-size:11px}.status.ready{background:#e7f7ea;color:#16752c}.status.released{background:#e9f0ff;color:#2455a5}
+.modal{display:none;position:fixed;inset:0;background:#0008;z-index:10;align-items:center;justify-content:center;padding:15px}.modal.show{display:flex}.modalbox{background:#fff;border-radius:16px;width:min(900px,100%);max-height:94vh;overflow:auto;padding:24px}.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
 .formgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:700;color:#655b69}
-input,select{width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;font-size:14px}input:focus,select:focus{outline:2px solid #d9b9e9;border-color:#8d43b5}
-.totalbox{background:#f8f1fb;border-radius:10px;padding:15px;margin-top:15px}.totalrow{display:flex;justify-content:space-between;margin:7px 0}.grand{font-size:20px;font-weight:700;color:#6b1fa8}
-.actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
-.empty{text-align:center;color:#888;padding:28px}.hidden{display:none!important}
-@media(max-width:850px){.sidebar{width:72px}.logo,.tag{display:none}.main{margin-left:72px;padding:18px}.nav button{font-size:0;text-align:center}.nav button::first-letter{font-size:20px}.cards{grid-template-columns:1fr 1fr}}
-@media(max-width:560px){.formgrid,.cards,.quick{grid-template-columns:1fr}.header{display:block}.header .btn{margin-top:12px}}
+input,select{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px}input:focus,select:focus{outline:2px solid #d9b9e9;border-color:#8d43b5}
+.itemsbox{margin-top:20px;border:1px solid #eadff0;border-radius:12px;overflow:hidden}.itemshead{padding:13px 15px;background:#faf6fc;display:flex;justify-content:space-between;align-items:center}.itemrow{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr auto;gap:8px;align-items:end;padding:12px;border-top:1px solid #eee}.itemrow label{font-size:10px;font-weight:700;color:#777;display:block;margin-bottom:5px}.itemsub{font-weight:700;padding:10px 3px}.remove{border:0;background:#fee;color:#a33;border-radius:7px;padding:9px;cursor:pointer}
+.totalbox{background:#f8f1fb;border-radius:10px;padding:15px;margin-top:15px}.totalrow{display:flex;justify-content:space-between;margin:7px 0}.grand{font-size:20px;font-weight:700;color:#6b1fa8}.actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}.empty{text-align:center;color:#888;padding:28px}.hidden{display:none!important}
+.search{padding:10px 12px;border:1px solid #ddd;border-radius:8px;width:280px}.sectionbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}
+.pricegrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.pricecard{border:1px solid #eee;padding:14px;border-radius:10px}.pricecard b{color:#6b1fa8}
+@media(max-width:850px){.sidebar{width:72px}.logo,.tag{display:none}.main{margin-left:72px;padding:18px}.nav button{font-size:0;text-align:center}.nav button::first-letter{font-size:20px}.cards{grid-template-columns:1fr 1fr}.itemrow{grid-template-columns:1.7fr .8fr .9fr 1fr auto}}
+@media(max-width:600px){.formgrid,.cards,.quick,.pricegrid{grid-template-columns:1fr}.header{display:block}.header .btn{margin-top:12px}.itemrow{grid-template-columns:1fr 1fr}.itemrow .itemsub{grid-column:1/2}.itemrow .remove{grid-column:2/3}.search{width:100%}}
 </style>
 </head>
 <body>
 <aside class="sidebar">
 <div class="logo">JMM HOME LAUNDRY</div><div class="tag">FREE PICK UP & DELIVERY</div>
 <nav class="nav">
-<button data-page="dashboard" class="active">🏠 Dashboard</button>
-<button data-page="orders">📋 Orders</button>
-<button data-page="customers">👥 Customers</button>
-<button data-page="inventory">📦 Inventory</button>
-<button data-page="payments">💰 Payments</button>
-<button data-page="reports">📊 Reports</button>
-<button data-page="settings">⚙️ Settings</button>
-</nav>
-</aside>
-
+<button data-page="dashboard" class="active">🏠 Dashboard</button><button data-page="orders">📋 Orders</button><button data-page="customers">👥 Customers</button><button data-page="inventory">📦 Inventory</button><button data-page="payments">💰 Payments</button><button data-page="reports">📊 Reports</button><button data-page="settings">⚙️ Settings</button>
+</nav></aside>
 <main class="main">
-<div class="header"><div><h1 id="pageTitle">Dashboard</h1><div class="subtitle">JMM Home Laundry POS</div></div>
-<button class="btn" id="newOrderBtn">+ New Laundry Order</button></div>
-
+<div class="header"><div><h1 id="pageTitle">Dashboard</h1><div class="subtitle">JMM Home Laundry POS</div></div><button class="btn" id="newOrderBtn">+ New Laundry Order</button></div>
 <section id="dashboardPage">
-<div class="cards">
-<div class="card"><small>Today's Sales</small><div class="value" id="salesValue">₱0.00</div></div>
-<div class="card"><small>Today's Orders</small><div class="value" id="ordersValue">0</div></div>
-<div class="card"><small>Pending Orders</small><div class="value" id="pendingValue">0</div></div>
-<div class="card"><small>Receivable</small><div class="value" id="receivableValue">₱0.00</div></div>
-</div>
-<div class="panel"><h2>Quick Actions</h2><div class="quick">
-<button id="quickOrder">🧺 New Laundry Order</button><button data-page-jump="customers">👥 Customers</button><button data-page-jump="inventory">📦 Inventory</button>
-</div></div>
-<div class="panel"><h2>Recent Orders</h2><div id="recentOrders"></div></div>
-</section>
-
-<section id="ordersPage" class="hidden"><div class="panel"><h2>All Laundry Orders</h2><div id="ordersTable"></div></div></section>
+<div class="cards"><div class="card"><small>Today's Sales</small><div class="value" id="salesValue">₱0.00</div></div><div class="card"><small>Today's Orders</small><div class="value" id="ordersValue">0</div></div><div class="card"><small>Pending Orders</small><div class="value" id="pendingValue">0</div></div><div class="card"><small>Receivable</small><div class="value" id="receivableValue">₱0.00</div></div></div>
+<div class="panel"><h2>Quick Actions</h2><div class="quick"><button id="quickOrder">🧺 New Laundry Order</button><button data-page-jump="customers">👥 Customers</button><button data-page-jump="inventory">📦 Inventory</button></div></div>
+<div class="panel"><h2>Recent Orders</h2><div id="recentOrders"></div></div></section>
+<section id="ordersPage" class="hidden"><div class="panel"><div class="sectionbar"><h2>All Laundry Orders</h2><input class="search" id="orderSearch" placeholder="Search customer, contact or order #"></div><div id="ordersTable"></div></div></section>
 <section id="customersPage" class="hidden"><div class="panel"><h2>Customers</h2><div id="customersTable"></div></div></section>
-<section id="inventoryPage" class="hidden"><div class="panel"><h2>Inventory</h2><p style="color:#777">Inventory module will be added next. For now, your laundry orders are already saved on this device.</p></div></section>
+<section id="inventoryPage" class="hidden"><div class="panel"><h2>Inventory</h2><p style="color:#777">Inventory will be connected after the service/pricing module is finalized.</p></div></section>
 <section id="paymentsPage" class="hidden"><div class="panel"><h2>Payments</h2><div id="paymentsTable"></div></div></section>
-<section id="reportsPage" class="hidden"><div class="panel"><h2>Reports</h2><p>Sales and order totals are calculated from saved transactions.</p><div id="reportContent"></div></div></section>
-<section id="settingsPage" class="hidden"><div class="panel"><h2>Settings</h2><p><b>Business:</b> JMM Home Laundry</p><p><b>Tagline:</b> Free Pick Up & Delivery</p><p style="color:#777">Next versions can add staff accounts, services, pricing and backup.</p></div></section>
+<section id="reportsPage" class="hidden"><div class="panel"><h2>Reports</h2><div id="reportContent"></div></div></section>
+<section id="settingsPage" class="hidden"><div class="panel"><h2>Service & Pricing</h2><p style="color:#777">These are starting prices only. We can replace them with JMM's official price list later.</p><div class="pricegrid" id="priceList"></div></div><div class="panel"><h2>Business Settings</h2><p><b>Business:</b> JMM Home Laundry</p><p><b>Tagline:</b> Free Pick Up & Delivery</p></div></section>
 </main>
 
-<div class="modal" id="orderModal">
-<div class="modalbox">
+<div class="modal" id="orderModal"><div class="modalbox">
 <div class="modalhead"><h2 style="margin:0">🧺 New Laundry Order</h2><button class="btn secondary" id="closeModal">✕</button></div>
 <form id="orderForm">
 <div class="formgrid">
-<div class="field"><label>Customer Name *</label><input id="customer" required></div>
-<div class="field"><label>Contact Number</label><input id="contact"></div>
+<div class="field"><label>Customer Name *</label><input id="customer" required></div><div class="field"><label>Contact Number</label><input id="contact"></div>
 <div class="field full"><label>Address</label><input id="address"></div>
-<div class="field"><label>Order Type</label><select id="orderType"><option>Walk-in</option><option>Pick-up</option></select></div>
-<div class="field"><label>Laundry Service</label><select id="service"><option value="Wash-Dry-Fold">Wash-Dry-Fold</option><option value="Wash Only">Wash Only</option><option value="Dry Only">Dry Only</option><option value="Fold Only">Fold Only</option></select></div>
-<div class="field"><label>Weight (kg) *</label><input id="kg" type="number" min="0" step="0.1" value="1" required></div>
-<div class="field"><label>Price per kg (₱) *</label><input id="price" type="number" min="0" step="0.01" value="35" required></div>
-<div class="field"><label>Add-ons (₱)</label><input id="addons" type="number" min="0" step="0.01" value="0"></div>
-<div class="field"><label>Amount Paid (₱)</label><input id="paid" type="number" min="0" step="0.01" value="0"></div>
-<div class="field"><label>Payment Method</label><select id="paymentMethod"><option>Cash</option><option>GCash</option><option>Other</option></select></div>
+<div class="field"><label>Order Type</label><select id="orderType"><option>Walk-in</option><option>Pick-up</option><option>Delivery</option></select></div>
 <div class="field"><label>Expected Release</label><input id="releaseDate" type="date"></div>
-<div class="field"><label>Status</label><select id="status"><option>Received</option><option>Washing</option><option>Drying</option><option>Folding</option><option>Ready</option><option>Released</option></select></div>
 </div>
+<div class="itemsbox"><div class="itemshead"><b>Laundry Items</b><button type="button" class="btn" id="addItem">+ Add Item</button></div><div id="items"></div></div>
 <div class="totalbox">
-<div class="totalrow"><span>Service Total</span><b id="serviceTotal">₱35.00</b></div>
-<div class="totalrow"><span>Add-ons</span><b id="addonTotal">₱0.00</b></div>
-<div class="totalrow grand"><span>TOTAL</span><span id="grandTotal">₱35.00</span></div>
-<div class="totalrow"><span>Paid</span><b id="paidDisplay">₱0.00</b></div>
-<div class="totalrow"><span>Balance</span><b id="balanceDisplay">₱35.00</b></div>
+<div class="totalrow"><span>Subtotal</span><b id="grandTotal">₱0.00</b></div>
+<div class="totalrow"><span>Amount Paid</span><b id="paidDisplay">₱0.00</b></div>
+<div class="totalrow grand"><span>Balance</span><span id="balanceDisplay">₱0.00</span></div>
+<div class="formgrid" style="margin-top:12px"><div class="field"><label>Amount Paid (₱)</label><input id="paid" type="number" min="0" step="0.01" value="0"></div><div class="field"><label>Payment Method</label><select id="paymentMethod"><option>Cash</option><option>GCash</option><option>Other</option></select></div><div class="field"><label>Order Status</label><select id="status"><option>Received</option><option>Washing</option><option>Drying</option><option>Folding</option><option>Ready</option><option>Released</option></select></div></div>
 </div>
 <div class="actions"><button type="button" class="btn secondary" id="cancelOrder">Cancel</button><button class="btn" type="submit">Save Order</button></div>
-</form>
-</div></div>
+</form></div></div>
 
 <script>
 const key="jmmLaundryOrders";
+const catalog=[
+{name:"Regular Wash-Dry-Fold",type:"KG",category:"REGULAR",price:35},
+{name:"Wash Only",type:"KG",category:"REGULAR",price:25},
+{name:"Dry Only",type:"KG",category:"REGULAR",price:20},
+{name:"Heavy Wash",type:"KG",category:"SPECIAL WASH",price:50},
+{name:"Delicate Wash",type:"KG",category:"SPECIAL WASH",price:50},
+{name:"Comforter",type:"PC",category:"PER PIECE",price:150},
+{name:"Blanket",type:"PC",category:"PER PIECE",price:100},
+{name:"Bedsheet",type:"PC",category:"PER PIECE",price:60},
+{name:"Curtain",type:"PC",category:"PER PIECE",price:100},
+{name:"Pillow",type:"PC",category:"PER PIECE",price:50},
+{name:"Shoes",type:"PAIR",category:"PER PIECE",price:100},
+{name:"Stuffed Toy",type:"PC",category:"PER PIECE",price:80},
+{name:"Rug / Carpet",type:"PC",category:"PER PIECE",price:100},
+{name:"Other",type:"PC",category:"PER PIECE",price:0}
+];
 let orders=JSON.parse(localStorage.getItem(key)||"[]");
+orders=orders.map(o=>o.items?o:{...o,items:[{name:o.service||"Regular Wash-Dry-Fold",type:"KG",qty:o.kg||1,price:o.price||35,subtotal:o.total||((o.kg||1)*(o.price||35))}],total:o.total||0});
 const money=n=>"₱"+Number(n||0).toLocaleString("en-PH",{minimumFractionDigits:2,maximumFractionDigits:2});
 const today=()=>new Date().toISOString().slice(0,10);
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 function save(){localStorage.setItem(key,JSON.stringify(orders));renderAll()}
-function calc(){
- const kg=+document.getElementById("kg").value||0, price=+document.getElementById("price").value||0, add=+document.getElementById("addons").value||0, paid=+document.getElementById("paid").value||0;
- const st=kg*price,total=st+add,bal=Math.max(total-paid,0);
- document.getElementById("serviceTotal").textContent=money(st);document.getElementById("addonTotal").textContent=money(add);
- document.getElementById("grandTotal").textContent=money(total);document.getElementById("paidDisplay").textContent=money(paid);document.getElementById("balanceDisplay").textContent=money(bal);
- return {st,add,total,paid,bal};
+function itemOptions(selected=""){return catalog.map(x=>`<option value="${esc(x.name)}" ${x.name===selected?"selected":""}>${esc(x.category)} — ${esc(x.name)} (${x.type})</option>`).join("")}
+function addItem(name="Regular Wash-Dry-Fold",qty=1){
+ const wrap=document.createElement("div");wrap.className="itemrow";
+ const item=catalog.find(x=>x.name===name)||catalog[0];
+ wrap.innerHTML=`<div><label>Service / Item</label><select class="iname">${itemOptions(name)}</select></div><div><label>Qty / KG / PC</label><input class="iqty" type="number" min="0.1" step="0.1" value="${qty}"></div><div><label>Unit</label><input class="itype" value="${item.type}" readonly></div><div><label>Price</label><input class="iprice" type="number" min="0" step="0.01" value="${item.price}"></div><div><label>Subtotal</label><div class="itemsub">₱0.00</div><button type="button" class="remove">Remove</button></div>`;
+ document.getElementById("items").appendChild(wrap);
+ wrap.querySelector(".iname").onchange=()=>{let i=catalog.find(x=>x.name===wrap.querySelector(".iname").value);wrap.querySelector(".itype").value=i.type;wrap.querySelector(".iprice").value=i.price;calcOrder()};
+ wrap.querySelectorAll("input").forEach(i=>i.oninput=calcOrder);
+ wrap.querySelector(".remove").onclick=()=>{wrap.remove();calcOrder()};
+ calcOrder();
 }
-["kg","price","addons","paid"].forEach(id=>document.getElementById(id).addEventListener("input",calc));
-function openModal(){document.getElementById("orderModal").classList.add("show");document.getElementById("releaseDate").value=today();calc()}
+function getItems(){return [...document.querySelectorAll(".itemrow")].map(r=>{let name=r.querySelector(".iname").value,qty=+r.querySelector(".iqty").value||0,price=+r.querySelector(".iprice").value||0;return {name,type:r.querySelector(".itype").value,qty,price,subtotal:qty*price}})}
+function calcOrder(){
+ let items=getItems(),total=items.reduce((s,i)=>s+i.subtotal,0),paid=+document.getElementById("paid").value||0,balance=Math.max(total-paid,0);
+ items.forEach((it,idx)=>{let r=document.querySelectorAll(".itemrow")[idx];if(r)r.querySelector(".itemsub").textContent=money(it.subtotal)});
+ document.getElementById("grandTotal").textContent=money(total);document.getElementById("paidDisplay").textContent=money(paid);document.getElementById("balanceDisplay").textContent=money(balance);return {items,total,paid,balance}
+}
+function openModal(){document.getElementById("orderModal").classList.add("show");document.getElementById("releaseDate").value=today();document.getElementById("items").innerHTML="";addItem()}
 function closeModal(){document.getElementById("orderModal").classList.remove("show")}
-document.getElementById("newOrderBtn").onclick=openModal;document.getElementById("quickOrder").onclick=openModal;document.getElementById("closeModal").onclick=closeModal;document.getElementById("cancelOrder").onclick=closeModal;
+document.getElementById("newOrderBtn").onclick=openModal;document.getElementById("quickOrder").onclick=openModal;document.getElementById("closeModal").onclick=closeModal;document.getElementById("cancelOrder").onclick=closeModal;document.getElementById("addItem").onclick=()=>addItem();document.getElementById("paid").oninput=calcOrder;
 document.getElementById("orderForm").onsubmit=e=>{
- e.preventDefault();const c=calc(), now=new Date();
- const order={id:"JMM-"+now.getFullYear()+String(now.getMonth()+1).padStart(2,"0")+String(now.getDate()).padStart(2,"0")+"-"+String(orders.length+1).padStart(4,"0"),date:now.toISOString(),customer:document.getElementById("customer").value.trim(),contact:document.getElementById("contact").value.trim(),address:document.getElementById("address").value.trim(),orderType:document.getElementById("orderType").value,service:document.getElementById("service").value,kg:+document.getElementById("kg").value,price:+document.getElementById("price").value,addons:c.add,total:c.total,paid:c.paid,balance:c.bal,paymentMethod:document.getElementById("paymentMethod").value,releaseDate:document.getElementById("releaseDate").value,status:document.getElementById("status").value};
- orders.unshift(order);save();closeModal();e.target.reset();alert("Order saved: "+order.id);showPage("orders")
-};
-function tableOrders(list=orders){
- if(!list.length)return '<div class="empty">No orders yet. Click “New Laundry Order” to create one.</div>';
- return `<table><thead><tr><th>Order #</th><th>Customer</th><th>Service</th><th>KG</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th></tr></thead><tbody>`+
- list.map(o=>`<tr><td>${esc(o.id)}</td><td>${esc(o.customer)}<br><small>${esc(o.contact)}</small></td><td>${esc(o.service)}</td><td>${o.kg}</td><td>${money(o.total)}</td><td>${money(o.paid)}</td><td>${money(o.balance)}</td><td><span class="status ${o.status.toLowerCase()}">${esc(o.status)}</span></td></tr>`).join("")+"</tbody></table>";
-}
+e.preventDefault();let c=calcOrder();if(!c.items.length||c.total<=0){alert("Please add at least one laundry item with a price.");return}
+const now=new Date();const order={id:"JMM-"+now.getFullYear()+String(now.getMonth()+1).padStart(2,"0")+String(now.getDate()).padStart(2,"0")+"-"+String(orders.length+1).padStart(4,"0"),date:now.toISOString(),customer:document.getElementById("customer").value.trim(),contact:document.getElementById("contact").value.trim(),address:document.getElementById("address").value.trim(),orderType:document.getElementById("orderType").value,releaseDate:document.getElementById("releaseDate").value,items:c.items,total:c.total,paid:c.paid,balance:c.balance,paymentMethod:document.getElementById("paymentMethod").value,status:document.getElementById("status").value};
+orders.unshift(order);save();closeModal();e.target.reset();document.getElementById("items").innerHTML="";alert("Order saved: "+order.id);showPage("orders")};
+function itemSummary(o){return o.items.map(i=>`${esc(i.name)} — ${i.qty} ${i.type}`).join("<br>")}
+function tableOrders(list=orders){if(!list.length)return '<div class="empty">No orders yet. Click “New Laundry Order” to create one.</div>';return `<table><thead><tr><th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th></tr></thead><tbody>${list.map(o=>`<tr><td>${esc(o.id)}</td><td>${esc(o.customer)}<br><small>${esc(o.contact)}</small></td><td>${itemSummary(o)}</td><td>${money(o.total)}</td><td>${money(o.paid)}</td><td>${money(o.balance)}</td><td><span class="status ${o.status.toLowerCase()}">${esc(o.status)}</span></td></tr>`).join("")}</tbody></table>`}
 function renderAll(){
- const t=today(), todays=orders.filter(o=>o.date.slice(0,10)===t), pending=orders.filter(o=>!["Released"].includes(o.status));
- document.getElementById("salesValue").textContent=money(todays.reduce((s,o)=>s+o.paid,0));
- document.getElementById("ordersValue").textContent=todays.length;document.getElementById("pendingValue").textContent=pending.length;
- document.getElementById("receivableValue").textContent=money(orders.reduce((s,o)=>s+o.balance,0));
- document.getElementById("recentOrders").innerHTML=tableOrders(orders.slice(0,8));document.getElementById("ordersTable").innerHTML=tableOrders();
- const customers=[...new Map(orders.map(o=>[o.contact||o.customer,o])).values()];
- document.getElementById("customersTable").innerHTML=customers.length?`<table><thead><tr><th>Customer</th><th>Contact</th><th>Address</th><th>Orders</th><th>Total Spent</th></tr></thead><tbody>${customers.map(c=>{let os=orders.filter(o=>(o.contact||o.customer)===(c.contact||c.customer));return `<tr><td>${esc(c.customer)}</td><td>${esc(c.contact)}</td><td>${esc(c.address)}</td><td>${os.length}</td><td>${money(os.reduce((s,o)=>s+o.paid,0))}</td></tr>`}).join("")}</tbody></table>`:'<div class="empty">No customers yet.</div>';
- document.getElementById("paymentsTable").innerHTML=orders.length?`<table><thead><tr><th>Date</th><th>Order</th><th>Customer</th><th>Method</th><th>Paid</th><th>Balance</th></tr></thead><tbody>${orders.map(o=>`<tr><td>${o.date.slice(0,10)}</td><td>${esc(o.id)}</td><td>${esc(o.customer)}</td><td>${esc(o.paymentMethod)}</td><td>${money(o.paid)}</td><td>${money(o.balance)}</td></tr>`).join("")}</tbody></table>`:'<div class="empty">No payments yet.</div>';
- const gross=orders.reduce((s,o)=>s+o.total,0), paid=orders.reduce((s,o)=>s+o.paid,0);
- document.getElementById("reportContent").innerHTML=`<p><b>Total Orders:</b> ${orders.length}</p><p><b>Total Sales:</b> ${money(gross)}</p><p><b>Total Collected:</b> ${money(paid)}</p><p><b>Outstanding Balance:</b> ${money(gross-paid)}</p>`;
+const t=today(),todays=orders.filter(o=>o.date.slice(0,10)===t),pending=orders.filter(o=>o.status!=="Released");document.getElementById("salesValue").textContent=money(todays.reduce((s,o)=>s+o.paid,0));document.getElementById("ordersValue").textContent=todays.length;document.getElementById("pendingValue").textContent=pending.length;document.getElementById("receivableValue").textContent=money(orders.reduce((s,o)=>s+o.balance,0));document.getElementById("recentOrders").innerHTML=tableOrders(orders.slice(0,8));document.getElementById("ordersTable").innerHTML=tableOrders();
+let customers=[...new Map(orders.map(o=>[o.contact||o.customer,o])).values()];document.getElementById("customersTable").innerHTML=customers.length?`<table><thead><tr><th>Customer</th><th>Contact</th><th>Address</th><th>Orders</th><th>Total Paid</th></tr></thead><tbody>${customers.map(c=>{let os=orders.filter(o=>(o.contact||o.customer)===(c.contact||c.customer));return `<tr><td>${esc(c.customer)}</td><td>${esc(c.contact)}</td><td>${esc(c.address)}</td><td>${os.length}</td><td>${money(os.reduce((s,o)=>s+o.paid,0))}</td></tr>`}).join("")}</tbody></table>`:'<div class="empty">No customers yet.</div>';
+document.getElementById("paymentsTable").innerHTML=orders.length?`<table><thead><tr><th>Date</th><th>Order</th><th>Customer</th><th>Method</th><th>Paid</th><th>Balance</th></tr></thead><tbody>${orders.map(o=>`<tr><td>${o.date.slice(0,10)}</td><td>${esc(o.id)}</td><td>${esc(o.customer)}</td><td>${esc(o.paymentMethod)}</td><td>${money(o.paid)}</td><td>${money(o.balance)}</td></tr>`).join("")}</tbody></table>`:'<div class="empty">No payments yet.</div>';
+let gross=orders.reduce((s,o)=>s+o.total,0),paid=orders.reduce((s,o)=>s+o.paid,0);document.getElementById("reportContent").innerHTML=`<p><b>Total Orders:</b> ${orders.length}</p><p><b>Total Sales:</b> ${money(gross)}</p><p><b>Total Collected:</b> ${money(paid)}</p><p><b>Outstanding Balance:</b> ${money(gross-paid)}</p>`;
+document.getElementById("priceList").innerHTML=catalog.map(x=>`<div class="pricecard"><small>${x.category} • ${x.type}</small><br><b>${esc(x.name)}</b><br>Starting price: ${money(x.price)}</div>`).join("");
 }
-function showPage(page){
- const pages=["dashboard","orders","customers","inventory","payments","reports","settings"];
- pages.forEach(p=>document.getElementById(p+"Page").classList.toggle("hidden",p!==page));
- document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
- document.getElementById("pageTitle").textContent=page.charAt(0).toUpperCase()+page.slice(1);
-}
-document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>showPage(b.dataset.page));
-document.querySelectorAll("[data-page-jump]").forEach(b=>b.onclick=()=>showPage(b.dataset.pageJump));
+function showPage(page){["dashboard","orders","customers","inventory","payments","reports","settings"].forEach(p=>document.getElementById(p+"Page").classList.toggle("hidden",p!==page));document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===page));document.getElementById("pageTitle").textContent=page.charAt(0).toUpperCase()+page.slice(1)}
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>showPage(b.dataset.page));document.querySelectorAll("[data-page-jump]").forEach(b=>b.onclick=()=>showPage(b.dataset.pageJump));
+document.getElementById("orderSearch").oninput=e=>{let q=e.target.value.toLowerCase();document.getElementById("ordersTable").innerHTML=tableOrders(orders.filter(o=>[o.id,o.customer,o.contact].join(" ").toLowerCase().includes(q)))};
 renderAll();
 </script>
 </body>

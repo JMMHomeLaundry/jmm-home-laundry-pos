@@ -42,7 +42,7 @@ input,select{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;fon
 <section id="inventoryPage" class="hidden"><div class="panel"><h2>Inventory</h2><p style="color:#777">Inventory will be connected after the service/pricing module is finalized.</p></div></section>
 <section id="paymentsPage" class="hidden"><div class="panel"><h2>Payments</h2><div id="paymentsTable"></div></div></section>
 <section id="reportsPage" class="hidden"><div class="panel"><h2>Reports</h2><div id="reportContent"></div></div></section>
-<section id="settingsPage" class="hidden"><div class="panel"><h2>Service & Pricing</h2><p style="color:#777">These are starting prices only. We can replace them with JMM's official price list later.</p><div class="pricegrid" id="priceList"></div></div><div class="panel"><h2>Business Settings</h2><p><b>Business:</b> JMM Home Laundry</p><p><b>Tagline:</b> Free Pick Up & Delivery</p></div></section>
+<section id="settingsPage" class="hidden"><div class="panel"><h2>Service & Pricing</h2><p style="color:#777">JMM Home Laundry price list. For items with a ₱50–₱300 range, adjust the exact price per item in the order.</p><div class="pricegrid" id="priceList"></div></div><div class="panel"><h2>Business Settings</h2><p><b>Business:</b> JMM Home Laundry</p><p><b>Tagline:</b> Free Pick Up & Delivery</p></div></section>
 </main>
 
 <div class="modal" id="orderModal"><div class="modalbox">
@@ -67,20 +67,20 @@ input,select{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;fon
 <script>
 const key="jmmLaundryOrders";
 const catalog=[
-{name:"Regular Wash-Dry-Fold",type:"KG",category:"REGULAR",price:35},
-{name:"Wash Only",type:"KG",category:"REGULAR",price:25},
-{name:"Dry Only",type:"KG",category:"REGULAR",price:20},
-{name:"Heavy Wash",type:"KG",category:"SPECIAL WASH",price:50},
-{name:"Delicate Wash",type:"KG",category:"SPECIAL WASH",price:50},
-{name:"Comforter",type:"PC",category:"PER PIECE",price:150},
-{name:"Blanket",type:"PC",category:"PER PIECE",price:100},
-{name:"Bedsheet",type:"PC",category:"PER PIECE",price:60},
-{name:"Curtain",type:"PC",category:"PER PIECE",price:100},
-{name:"Pillow",type:"PC",category:"PER PIECE",price:50},
-{name:"Shoes",type:"PAIR",category:"PER PIECE",price:100},
-{name:"Stuffed Toy",type:"PC",category:"PER PIECE",price:80},
-{name:"Rug / Carpet",type:"PC",category:"PER PIECE",price:100},
-{name:"Other",type:"PC",category:"PER PIECE",price:0}
+{name:"Regular Wash-Dry-Fold",type:"KG",category:"REGULAR",price:35,label:"₱35/kg"},
+{name:"Wash Only",type:"KG",category:"REGULAR",price:40,label:"₱40/kg"},
+{name:"Dry Only",type:"KG",category:"REGULAR",price:25,label:"₱25/kg"},
+{name:"Heavy Wash",type:"KG",category:"SPECIAL WASH",price:40,label:"₱40/kg"},
+{name:"Delicate Wash",type:"KG",category:"SPECIAL WASH",price:40,label:"₱40/kg"},
+{name:"Comforter",type:"PC",category:"PER PIECE",price:50,label:"₱50–₱300/pc"},
+{name:"Blanket",type:"PC",category:"PER PIECE",price:50,label:"₱50–₱300/pc"},
+{name:"Bedsheet",type:"PC",category:"PER PIECE",price:30,label:"₱30–₱300/pc"},
+{name:"Curtain",type:"PC",category:"PER PIECE",price:50,label:"₱50–₱300/pc"},
+{name:"Pillow",type:"PC",category:"PER PIECE",price:50,label:"₱50–₱300/pc"},
+{name:"Shoes",type:"PAIR",category:"PER PIECE",price:300,label:"₱300/pair"},
+{name:"Stuffed Toy",type:"PC",category:"PER PIECE",price:50,label:"₱50–₱300/pc"},
+{name:"Rug / Carpet",type:"PC",category:"PER PIECE",price:50,label:"₱50–₱300/pc"},
+{name:"Other",type:"PC",category:"PER PIECE",price:0,label:"Custom price"}
 ];
 let orders=JSON.parse(localStorage.getItem(key)||"[]");
 orders=orders.map(o=>o.items?o:{...o,items:[{name:o.service||"Regular Wash-Dry-Fold",type:"KG",qty:o.kg||1,price:o.price||35,subtotal:o.total||((o.kg||1)*(o.price||35))}],total:o.total||0});
@@ -88,7 +88,7 @@ const money=n=>"₱"+Number(n||0).toLocaleString("en-PH",{minimumFractionDigits:
 const today=()=>new Date().toISOString().slice(0,10);
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 function save(){localStorage.setItem(key,JSON.stringify(orders));renderAll()}
-function itemOptions(selected=""){return catalog.map(x=>`<option value="${esc(x.name)}" ${x.name===selected?"selected":""}>${esc(x.category)} — ${esc(x.name)} (${x.type})</option>`).join("")}
+function itemOptions(selected=""){return catalog.map(x=>`<option value="${esc(x.name)}" ${x.name===selected?"selected":""}>${esc(x.category)} — ${esc(x.name)} (${x.type}) — ${esc(x.label)}</option>`).join("")}
 function addItem(name="Regular Wash-Dry-Fold",qty=1){
  const wrap=document.createElement("div");wrap.className="itemrow";
  const item=catalog.find(x=>x.name===name)||catalog[0];
@@ -119,7 +119,7 @@ const t=today(),todays=orders.filter(o=>o.date.slice(0,10)===t),pending=orders.f
 let customers=[...new Map(orders.map(o=>[o.contact||o.customer,o])).values()];document.getElementById("customersTable").innerHTML=customers.length?`<table><thead><tr><th>Customer</th><th>Contact</th><th>Address</th><th>Orders</th><th>Total Paid</th></tr></thead><tbody>${customers.map(c=>{let os=orders.filter(o=>(o.contact||o.customer)===(c.contact||c.customer));return `<tr><td>${esc(c.customer)}</td><td>${esc(c.contact)}</td><td>${esc(c.address)}</td><td>${os.length}</td><td>${money(os.reduce((s,o)=>s+o.paid,0))}</td></tr>`}).join("")}</tbody></table>`:'<div class="empty">No customers yet.</div>';
 document.getElementById("paymentsTable").innerHTML=orders.length?`<table><thead><tr><th>Date</th><th>Order</th><th>Customer</th><th>Method</th><th>Paid</th><th>Balance</th></tr></thead><tbody>${orders.map(o=>`<tr><td>${o.date.slice(0,10)}</td><td>${esc(o.id)}</td><td>${esc(o.customer)}</td><td>${esc(o.paymentMethod)}</td><td>${money(o.paid)}</td><td>${money(o.balance)}</td></tr>`).join("")}</tbody></table>`:'<div class="empty">No payments yet.</div>';
 let gross=orders.reduce((s,o)=>s+o.total,0),paid=orders.reduce((s,o)=>s+o.paid,0);document.getElementById("reportContent").innerHTML=`<p><b>Total Orders:</b> ${orders.length}</p><p><b>Total Sales:</b> ${money(gross)}</p><p><b>Total Collected:</b> ${money(paid)}</p><p><b>Outstanding Balance:</b> ${money(gross-paid)}</p>`;
-document.getElementById("priceList").innerHTML=catalog.map(x=>`<div class="pricecard"><small>${x.category} • ${x.type}</small><br><b>${esc(x.name)}</b><br>Starting price: ${money(x.price)}</div>`).join("");
+document.getElementById("priceList").innerHTML=catalog.map(x=>`<div class="pricecard"><small>${x.category} • ${x.type}</small><br><b>${esc(x.name)}</b><br>Price: ${esc(x.label)}</div>`).join("");
 }
 function showPage(page){["dashboard","orders","customers","inventory","payments","reports","settings"].forEach(p=>document.getElementById(p+"Page").classList.toggle("hidden",p!==page));document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===page));document.getElementById("pageTitle").textContent=page.charAt(0).toUpperCase()+page.slice(1)}
 document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>showPage(b.dataset.page));document.querySelectorAll("[data-page-jump]").forEach(b=>b.onclick=()=>showPage(b.dataset.pageJump));

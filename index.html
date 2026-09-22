@@ -1,3 +1,4 @@
+```
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -310,7 +311,7 @@ function renderReport(){
     days[d].sales+=Number(o.total||0);
     days[d].paid+=Number(o.paid||0);
     days[d].balance+=Number(o.balance||0);
-  }));
+  });
 
   const methodRows=Object.entries(methods).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${money(v)}</td></tr>`).join("");
   const serviceRows=Object.entries(services).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${money(v)}</td></tr>`).join("");
@@ -365,7 +366,7 @@ function printSalesReport(){
   const popup=window.open("","_blank","width=900,height=900");
   if(!popup){alert("Please allow pop-ups for this site.");return}
   popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>JMM Home Laundry Sales Report</title><style>
-  *{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#222;padding:20px}h1{text-align:center;margin:0 0 4px}p{text-align:center;margin:4px 0 18px;color:#666}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}.card,.panel{border:1px solid #ddd;padding:12px;border-radius:8px}.value{font-size:20px;font-weight:bold;margin-top:5px}table{width:100%;border-collapse:collapse;margin-top:8px;font-size:11px}th,td{border:1px solid #bbb;padding:6px;text-align:left}h3{margin:0 0 6px;font-size:14px}@media print{@page{size:A4 portrait;margin:10mm}.no-print{display:none}}</style></head><body><h1>JMM HOME LAUNDRY</h1><p>SALES REPORT • ${esc(from)} to ${esc(to)}</p>${content}<script>window.onload=function(){window.print();}</script></body></html>`);
+  *{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#222;padding:20px}h1{text-align:center;margin:0 0 4px}p{text-align:center;margin:4px 0 18px;color:#666}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}.card,.panel{border:1px solid #ddd;padding:12px;border-radius:8px}.value{font-size:20px;font-weight:bold;margin-top:5px}table{width:100%;border-collapse:collapse;margin-top:8px;font-size:11px}th,td{border:1px solid #bbb;padding:6px;text-align:left}h3{margin:0 0 6px;font-size:14px}@media print{@page{size:A4 portrait;margin:10mm}.no-print{display:none}}</style></head><body><h1>JMM HOME LAUNDRY</h1><p>SALES REPORT • ${esc(from)} to ${esc(to)}</p>${content}<script>window.onload=function(){window.print();}<\/script></body></html>`);
   popup.document.close();
 }
 
@@ -507,3 +508,4 @@ function nextStatus(id){ changeStatus(id,1); }
 </script>
 </body>
 </html>
+```

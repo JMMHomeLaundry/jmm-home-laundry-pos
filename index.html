@@ -222,8 +222,55 @@ e.preventDefault();let c=calcOrder();if(!c.items.length||c.total<=0){alert("Plea
 const now=new Date();const order={id:"JMM-"+now.getFullYear()+String(now.getMonth()+1).padStart(2,"0")+String(now.getDate()).padStart(2,"0")+"-"+String(orders.length+1).padStart(4,"0"),date:now.toISOString(),customer:document.getElementById("customer").value.trim(),contact:document.getElementById("contact").value.trim(),address:document.getElementById("address").value.trim(),orderType:document.getElementById("orderType").value,releaseDate:document.getElementById("releaseDate").value,items:c.items,total:c.total,paid:c.paid,balance:c.balance,paymentMethod:document.getElementById("paymentMethod").value,status:document.getElementById("status").value};
 orders.unshift(order);upsertCustomer(order.customer,order.contact,order.address);save();closeModal();e.target.reset();document.getElementById("items").innerHTML="";refreshCustomerSelect();alert("Order saved: "+order.id);showPage("orders")};
 function itemSummary(o){return o.items.map(i=>`${esc(i.name)} — ${i.qty} ${i.type}`).join("<br>")}
-function tableOrders(list=orders){if(!list.length)return '<div class="empty">No orders yet. Click “New Laundry Order” to create one.</div>';return `<table><thead><tr><th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead><tbody>${list.map(o=>`<tr><td>${esc(o.id)}</td><td>${esc(o.customer)}<br><small>${esc(o.contact)}</small></td><td>${itemSummary(o)}</td><td>${money(o.total)}</td><td>${money(o.paid)}</td><td>${money(o.balance)}</td><td><span class="status ${o.status.toLowerCase()}">${esc(o.status)}</span></td><td><div class="actions" style="display:flex;flex-wrap:wrap;gap:6px;min-width:250px"><button class="btn" type="button" onclick="printReceipt('${esc(o.id)}')">🖨️ Print Receipt</button><button class="btn" type="button" onclick="previousStatus('${esc(o.id)}')">⬅️ Previous Status</button><button class="btn" type="button" onclick="nextStatus('${esc(o.id)}')">➡️ Next Status</button></div></td></tr>`).join("")}</tbody></table>`}
+function tableOrders(list=orders){if(!list.length)return '<div class="empty">No orders yet. Click “New Laundry Order” to create one.</div>';return `<table><thead><tr><th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead><tbody>${list.map(o=>`<tr><td>${esc(o.id)}</td><td>${esc(o.customer)}<br><small>${esc(o.contact)}</small></td><td>${itemSummary(o)}</td><td>${money(o.total)}</td><td>${money(o.paid)}</td><td>${money(o.balance)}</td><td><span class="status ${o.status.toLowerCase()}">${esc(o.status)}</span></td><td><div class="actions" style="display:flex;flex-wrap:wrap;gap:6px;min-width:250px"><button class="btn" type="button" onclick="printReceipt('${esc(o.id)}')">🖨️ Print Receipt</button>${Number(o.balance||0)>0?`<button class="btn" type="button" onclick="collectPayment('${esc(o.id)}')">💰 Collect Payment</button>`:""}<button class="btn" type="button" onclick="previousStatus(('${esc(o.id)}')">⬅️ Previous Status</button><button class="btn" type="button" onclick="nextStatus('${esc(o.id)}')">➡️ Next Status</button></div></td></tr>`).join("")}</tbody></table>`}
+function collectPayment(id){
+  const o=orders.find(x=>x.id===id);
+  if(!o){alert("Order not found.");return}
 
+  const balance=Number(o.balance||0);
+
+  if(balance<=0){
+    alert("This order has no outstanding balance.");
+    return;
+  }
+
+  const raw=prompt(
+    `Customer: ${o.customer}\nOrder: ${o.id}\nOutstanding Balance: ${money(balance)}\n\nEnter payment amount:`,
+    ""
+  );
+
+  if(raw===null)return;
+
+  const amount=Number(raw);
+
+  if(!Number.isFinite(amount)||amount<=0){
+    alert("Please enter a valid payment amount.");
+    return;
+  }
+
+  if(amount>balance){
+    alert("Payment cannot be more than the outstanding balance.");
+    return;
+  }
+
+  const method=prompt(
+    "Payment method (Cash / GCash / Bank Transfer / Other):",
+    o.paymentMethod||"Cash"
+  );
+
+  if(method===null)return;
+
+  o.paid=Number(o.paid||0)+amount;
+  o.balance=Math.max(Number(o.total||0)-o.paid,0);
+  o.paymentMethod=method.trim()||"Cash";
+  o.lastPaymentDate=new Date().toISOString();
+
+  save();
+
+  alert(
+    `Payment saved.\nPaid: ${money(amount)}\nRemaining Balance: ${money(o.balance)}`
+  );
+}
 function isoDateLocal(d){
   const x=new Date(d);
   const y=x.getFullYear(),m=String(x.getMonth()+1).padStart(2,"0"),day=String(x.getDate()).padStart(2,"0");

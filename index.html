@@ -1,4 +1,3 @@
-```
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -432,56 +431,93 @@ renderAll();
 function startSharedSync(){
   if(sharedSyncStarted) return;
   sharedSyncStarted=true;
+
   firebaseAuth.onAuthStateChanged(user=>{
-    if(!user)return;
+    if(!user) return;
+
     firebaseReady=true;
 
     const ordersRef=firebaseDb.ref("pos/orders");
     const customersRef=firebaseDb.ref("pos/customers");
 
-    ordersRef.once("value").then(snap=>{
+    // Capture this device's existing local data BEFORE realtime listeners
+    // can replace the arrays with the currently-empty cloud data.
+    const localOrdersSnapshot=orders.slice();
+    const localCustomersSnapshot=customers.slice();
+
+    const syncOrdersPromise=ordersRef.once("value").then(snap=>{
       const remote=snap.val()||{};
       const remoteOrders=Object.values(remote);
       const remoteIds=new Set(remoteOrders.map(o=>String(o.id)));
-      const localMissing=orders.filter(o=>!remoteIds.has(String(o.id)));
+
+      const localMissing=localOrdersSnapshot.filter(
+        o=>!remoteIds.has(String(o.id))
+      );
+
       if(localMissing.length){
         const updates={};
-        localMissing.forEach(o=>updates[firebaseOrderKey(o.id)]=o);
+        localMissing.forEach(o=>{
+          updates[firebaseOrderKey(o.id)]=o;
+        });
         return ordersRef.update(updates);
       }
-    }).catch(e=>console.error("Initial order sync failed:",e));
+    });
 
-    customersRef.once("value").then(snap=>{
+    const syncCustomersPromise=customersRef.once("value").then(snap=>{
       const remote=snap.val()||{};
       const remoteCustomers=Object.values(remote);
       const remoteIds=new Set(remoteCustomers.map(c=>String(c.id)));
-      const localMissing=customers.filter(c=>!remoteIds.has(String(c.id)));
+
+      const localMissing=localCustomersSnapshot.filter(
+        c=>!remoteIds.has(String(c.id))
+      );
+
       if(localMissing.length){
         const updates={};
-        localMissing.forEach(c=>updates[firebaseOrderKey(c.id)]=c);
+        localMissing.forEach(c=>{
+          updates[firebaseOrderKey(c.id)]=c;
+        });
         return customersRef.update(updates);
       }
-    }).catch(e=>console.error("Initial customer sync failed:",e));
-
-    ordersRef.on("value",snap=>{
-      const data=snap.val()||{};
-      orders=Object.values(data).map(o=>o.items?o:{...o,items:[{name:o.service||"Regular Wash-Dry-Fold",type:"KG",qty:o.kg||1,price:o.price||35,subtotal:o.total||((o.kg||1)*(o.price||35))}],total:o.total||0});
-      localStorage.setItem(key,JSON.stringify(orders));
-      renderAll();
     });
 
-    customersRef.on("value",snap=>{
-      const data=snap.val()||{};
-      customers=Object.values(data);
-      localStorage.setItem(customerKey,JSON.stringify(customers));
-      renderAll();
-      refreshCustomerSelect();
+    // Attach realtime listeners only AFTER the initial local-to-cloud merge.
+    Promise.all([syncOrdersPromise,syncCustomersPromise]).then(()=>{
+      ordersRef.on("value",snap=>{
+        const data=snap.val()||{};
+        orders=Object.values(data).map(o=>
+          o.items ? o : {
+            ...o,
+            items:[{
+              name:o.service||"Regular Wash-Dry-Fold",
+              type:"KG",
+              qty:o.kg||1,
+              price:o.price||35,
+              subtotal:o.total||((o.kg||1)*(o.price||35))
+            }],
+            total:o.total||0
+          }
+        );
+        localStorage.setItem(key,JSON.stringify(orders));
+        renderAll();
+      });
+
+      customersRef.on("value",snap=>{
+        const data=snap.val()||{};
+        customers=Object.values(data);
+        localStorage.setItem(customerKey,JSON.stringify(customers));
+        renderAll();
+        refreshCustomerSelect();
+      });
+    }).catch(e=>{
+      console.error("Initial Firebase sync failed:",e);
+      alert("Firebase connection is active, but the first data sync failed. Please refresh the POS.");
     });
   });
 
   firebaseAuth.signInAnonymously().catch(e=>{
     console.error("Firebase sign-in failed:",e);
-    alert("Online database connection failed. Please check the Firebase setup.");
+    alert("Online database connection failed. Please check Firebase Authentication.");
   });
 }
 
@@ -496,6 +532,9 @@ function initFirebase(){
     alert("Firebase is not configured yet. The POS will continue using this device's local data.");
   }
 }
+
+// Start Firebase sharing when the POS loads.
+initFirebase();
 
 function printReceipt(id){
   const o = orders.find(x=>x.id===id);
@@ -611,8 +650,7 @@ function changeStatus(id,direction){
   const next=Math.max(0,Math.min(flow.length-1,i+direction));
   if(next!==i){
     order.status=flow[next];
-    localStorage.setItem("jmmLaundryOrders",JSON.stringify(orders));
-    renderAll();
+    save(order);
   }
 }
 function previousStatus(id){ changeStatus(id,-1); }
@@ -620,4 +658,3 @@ function nextStatus(id){ changeStatus(id,1); }
 </script>
 </body>
 </html>
-```

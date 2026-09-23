@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JMM Home Laundry POS</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f6f2f8;color:#29232d}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:#6b1fa8;color:#fff;padding:22px 16px;z-index:5}
+.logo{font-size:20px;font-weight:700;margin:4px 10px}.tag{font-size:11px;opacity:.82;margin:5px 10px 24px}
+.nav button{display:block;width:100%;border:0;background:transparent;color:#fff;text-align:left;padding:12px 14px;border-radius:9px;margin:4px 0;font-size:14px;cursor:pointer}.nav button:hover,.nav button.active{background:#842fc1}
+.main{margin-left:240px;padding:28px;min-height:100vh}.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+h1{margin:0;font-size:28px}.subtitle{color:#766c7b;margin-top:5px}.btn{border:0;border-radius:9px;padding:11px 16px;background:#6b1fa8;color:#fff;cursor:pointer;font-weight:600}.btn.secondary{background:#eee;color:#4b4050}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:20px}.card,.panel{background:#fff;border-radius:14px;padding:20px;box-shadow:0 3px 12px #0000000b}.card small{color:#777}.value{font-size:25px;font-weight:700;margin-top:7px}.panel{margin-bottom:20px}.panel h2{font-size:18px;margin:0 0 15px}
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.quick button{padding:17px;border:1px dashed #b78ccf;background:#faf6fc;border-radius:10px;cursor:pointer;color:#5c2182;font-weight:600}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px;border-bottom:1px solid #eee;font-size:13px}th{color:#6d6370}.status{padding:5px 9px;border-radius:20px;background:#eee;font-size:11px}.status.ready{background:#e7f7ea;color:#16752c}.status.released{background:#e9f0ff;color:#2455a5}
+.modal{display:none;position:fixed;inset:0;background:#0008;z-index:10;align-items:center;justify-content:center;padding:15px}.modal.show{display:flex}.modalbox{background:#fff;border-radius:16px;width:min(900px,100%);max-height:94vh;overflow:auto;padding:24px}.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:700;color:#655b69}
+input,select{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px}input:focus,select:focus{outline:2px solid #d9b9e9;border-color:#8d43b5}
+.itemsbox{margin-top:20px;border:1px solid #eadff0;border-radius:12px;overflow:hidden}.itemshead{padding:13px 15px;background:#faf6fc;display:flex;justify-content:space-between;align-items:center}.itemrow{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr auto;gap:8px;align-items:end;padding:12px;border-top:1px solid #eee}.itemrow label{font-size:10px;font-weight:700;color:#777;display:block;margin-bottom:5px}.itemsub{font-weight:700;padding:10px 3px}.remove{border:0;background:#fee;color:#a33;border-radius:7px;padding:9px;cursor:pointer}
+.totalbox{background:#f8f1fb;border-radius:10px;padding:15px;margin-top:15px}.totalrow{display:flex;justify-content:space-between;margin:7px 0}.grand{font-size:20px;font-weight:700;color:#6b1fa8}.actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}.empty{text-align:center;color:#888;padding:28px}.hidden{display:none!important}
+.search{padding:10px 12px;border:1px solid #ddd;border-radius:8px;width:280px}.sectionbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}
+.pricegrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.pricecard{border:1px solid #eee;padding:14px;border-radius:10px}.pricecard b{color:#6b1fa8}
+@media(max-width:850px){.sidebar{width:72px}.logo,.tag{display:none}.main{margin-left:72px;padding:18px}.nav button{font-size:0;text-align:center}.nav button::first-letter{font-size:20px}.cards{grid-template-columns:1fr 1fr}.itemrow{grid-template-columns:1.7fr .8fr .9fr 1fr auto}}
+@media(max-width:600px){.formgrid,.cards,.quick,.pricegrid{grid-template-columns:1fr}.header{display:block}.header .btn{margin-top:12px}.itemrow{grid-template-columns:1fr 1fr}.itemrow .itemsub{grid-column:1/2}.itemrow .remove{grid-column:2/3}.search{width:100%}}
+
+.login-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#5f1797,#842fc1);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{width:min(420px,100%);background:#fff;border-radius:18px;padding:30px;box-shadow:0 15px 45px #0005}
+.login-card h1{font-size:24px;text-align:center;color:#6b1fa8;margin:0 0 5px}
+.login-card .login-subtitle{text-align:center;color:#777;font-size:13px;margin-bottom:24px}
+.login-card .field{margin-bottom:14px}
+.login-card .login-btn{width:100%;margin-top:8px}
+.login-error{display:none;background:#fff0f0;color:#a33;border:1px solid #f0caca;border-radius:8px;padding:10px;font-size:13px;margin-bottom:12px}
+.login-loading{display:none;text-align:center;color:#6b1fa8;font-size:13px;margin-top:10px}
+.logout-btn{margin-left:8px}
+@media(max-width:600px){.login-card{padding:24px}.login-card h1{font-size:21px}}
+
+</style>
+</head>
+<body>
+
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <h1>JMM HOME LAUNDRY</h1>
+    <div class="login-subtitle">POS STAFF LOGIN</div>
+    <div class="login-error" id="loginError"></div>
+    <form id="loginForm">
+      <div class="field">
+        <label>Email Address</label>
+        <input id="loginEmail" type="email" autocomplete="username" placeholder="Enter your email" required>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+      </div>
+      <button class="btn login-btn" type="submit" id="loginBtn">Login</button>
+      <div class="login-loading" id="loginLoading">Signing in...</div>
+    </form>
+  </div>
+</div>
+
+<aside class="sidebar">
+<div class="logo">JMM HOME LAUNDRY</div><div class="tag">FREE PICK UP & DELIVERY</div>
+<nav class="nav">
+<button data-page="dashboard" class="active">🏠 Dashboard</button><button data-page="orders">📋 Orders</button><button data-page="customers">👥 Customers</button><button data-page="inventory">📦 Inventory</button><button data-page="payments">💰 Payments</button><button data-page="reports">📊 Reports</button><button data-page="settings">⚙️ Settings</button>
+</nav></aside>
+<main class="main">
+<div class="header"><div><h1 id="pageTitle">Dashboard</h1><div class="subtitle">JMM Home Laundry POS</div></div><div><button class="btn secondary" id="logoutBtn">🚪 Logout</button><button class="btn logout-btn" id="newOrderBtn">+ New Laundry Order</button></div></div>
+<section id="dashboardPage">
+<div class="cards"><div class="card"><small>Today's Sales</small><div class="value" id="salesValue">₱0.00</div></div><div class="card"><small>Today's Orders</small><div class="value" id="ordersValue">0</div></div><div class="card"><small>Pending Orders</small><div class="value" id="pendingValue">0</div></div><div class="card"><small>Receivable</small><div class="value" id="receivableValue">₱0.00</div></div></div>
+<div class="panel"><h2>Quick Actions</h2><div class="quick"><button id="quickOrder">🧺 New Laundry Order</button><button data-page-jump="customers">👥 Customers</button><button data-page-jump="inventory">📦 Inventory</button></div></div>
+<div class="panel"><h2>Recent Orders</h2><div id="recentOrders"></div></div></section>
+<section id="ordersPage" class="hidden"><div class="panel"><div class="sectionbar"><h2>All Laundry Orders</h2><input class="search" id="orderSearch" placeholder="Search customer, contact or order #"></div><div id="ordersTable"></div></div></section>
+<section id="customersPage" class="hidden">
+<div class="cards" style="margin-bottom:15px">
+<div class="card"><small>Total Customers</small><div class="value" id="customerCount">0</div></div>
+<div class="card"><small>Total Orders</small><div class="value" id="customerOrderCount">0</div></div>
+<div class="card"><small>Total Paid</small><div class="value" id="customerPaidTotal">₱0.00</div></div>
+<div class="card"><small>Outstanding Balance</small><div class="value" id="customerBalanceTotal">₱0.00</div></div>
+</div>
+<div class="panel">
+<div class="sectionbar"><h2>👥 Customer Database</h2><input class="search" id="customerSearch" placeholder="Search name, contact or address"></div>
+<div id="customersTable"></div>
+</div>
+</section>
+<section id="inventoryPage" class="hidden"><div class="panel"><h2>Inventory</h2><p style="color:#777">Inventory will be connected after the service/pricing module is finalized.</p></div></section>
+<section id="paymentsPage" class="hidden"><div class="panel"><h2>Payments</h2><div id="paymentsTable"></div></div></section>
+<section id="reportsPage" class="hidden">
+<div class="panel">
+  <div class="sectionbar">
+    <div><h2>📊 Sales Reports</h2><div class="subtitle">Sales, collections and receivables</div></div>
+    <button class="btn" type="button" id="printReportBtn">🖨️ Print Report</button>
+  </div>
+  <div class="formgrid" style="margin-top:12px">
+    <div class="field"><label>From Date</label><input type="date" id="reportFrom"></div>
+    <div class="field"><label>To Date</label><input type="date" id="reportTo"></div>
+    <div class="field full" style="display:flex;gap:8px;flex-wrap:wrap;flex-direction:row;align-items:end">
+      <button class="btn secondary" type="button" data-report-range="today">Today</button>
+      <button class="btn secondary" type="button" data-report-range="7">Last 7 Days</button>
+      <button class="btn secondary" type="button" data-report-range="30">Last 30 Days</button>
+      <button class="btn secondary" type="button" data-report-range="all">All Time</button>
+      <button class="btn" type="button" id="applyReportBtn">Apply</button>
+    </div>
+  </div>
+</div>
+<div id="reportContent"></div>
+</section>
+<section id="settingsPage" class="hidden"><div class="panel"><h2>Service & Pricing</h2><p style="color:#777">JMM Home Laundry price list. For items with a ₱50–₱300 range, adjust the exact price per item in the order.</p><div class="pricegrid" id="priceList"></div></div><div class="panel"><h2>Business Settings</h2><p><b>Business:</b> JMM Home Laundry</p><p><b>Tagline:</b> Free Pick Up & Delivery</p></div></section>
+</main>
+
+<div class="modal" id="orderModal"><div class="modalbox">
+<div class="modalhead"><h2 style="margin:0">🧺 New Laundry Order</h2><button class="btn secondary" id="closeModal">✕</button></div>
+<form id="orderForm">
+<div class="formgrid">
+<div class="field full"><label>Existing Customer (optional)</label><select id="customerSelect"><option value="">+ New Customer</option></select></div>
+<div class="field"><label>Customer Name *</label><input id="customer" required></div><div class="field"><label>Contact Number</label><input id="contact"></div>
+<div class="field full"><label>Address</label><input id="address"></div>
+<div class="field"><label>Order Type</label><select id="orderType"><option>Walk-in</option><option>Pick-up</option><option>Delivery</option></select></div>
+<div class="field"><label>Expected Release</label><input id="releaseDate" type="date"></div>
+</div>
+<div class="itemsbox"><div class="itemshead"><b>Laundry Items</b><button type="button" class="btn" id="addItem">+ Add Item</button></div><div id="items"></div></div>
+<div class="totalbox">
+<div class="totalrow"><span>Subtotal</span><b id="grandTotal">₱0.00</b></div>
+<div class="totalrow"><span>Amount Paid</span><b id="paidDisplay">₱0.00</b></div>
+<div class="totalrow grand"><span>Balance</span><span id="balanceDisplay">₱0.00</span></div>
+<div class="formgrid" style="margin-top:12px"><div class="field"><label>Amount Paid (₱)</label><input id="paid" type="number" min="0" step="0.01" value="0"></div><div class="field"><label>Payment Method</label><select id="paymentMethod"><option>Cash</option><option>GCash</option><option>Other</option></select></div><div class="field"><label>Order Status</label><select id="status"><option>Received</option><option>Washing</option><option>Ready</option><option>Released</option></select></div></div>
+</div>
+<div class="actions"><button type="button" class="btn secondary" id="cancelOrder">Cancel</button><button class="btn" type="submit">Save Order</button></div>
+</form></div></div>
+
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-database-compat.js"></script>
+<script>
+const key="jmmLaundryOrders";
+const firebaseConfig = {
+  apiKey: "AIzaSyBkR2giGHlGsIbhag8-dnOHeEAYCwJKOFg",
+  authDomain: "jmm-home-laundry-pos.firebaseapp.com",
+  databaseURL: "https://jmm-home-laundry-pos-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "jmm-home-laundry-pos",
+  storageBucket: "jmm-home-laundry-pos.firebasestorage.app",
+  messagingSenderId: "327152763405",
+  appId: "1:327152763405:web:70056c2c3bb8cceb670b44"
+};
+
+let firebaseReady=false;
+let firebaseDb=null;
+let firebaseAuth=null;
+let sharedSyncStarted=false;
+
+const catalog=[
+{name:"Regular Wash-Dry-Fold",type:"KG",category:"REGULAR",price:35,label:"₱35/kg"},
+{name:"Wash Only",type:"KG",category:"REGULAR",price:40,label:"₱40/kg"},
+{name:"Dry Only",type:"KG",category:"REGULAR",price:25,label:"₱25/kg"},
+{name:"Heavy Wash",type:"KG",category:"SPECIAL WASH",price:40,label:"₱40/kg"},
+{name:"Delicate Wash",type:"KG",category:"SPECIAL WASH",price:40,label:"₱40/kg"},
+{name:"Comforter",type:"PC",category:"PER PIECE",price:50,label:"₱50–₱300/pc"},
+{name:"Blanket",type:"PC",category:"PER PIECE",price:50,label:"₱50–₱300/pc"},
+{name:"Bedsheet",type:"PC",category:"PER PIECE",price:30,label:"₱30–₱300/pc"},
+{name:"Curtain",type:"PC",category:"PER PIECE",price:50,label:"₱50–₱300/pc"},
+{name:"Pillow",type:"PC",category:"PER PIECE",price:50,label:"₱50–₱300/pc"},
+{name:"Shoes",type:"PAIR",category:"PER PIECE",price:300,label:"₱300/pair"},
+{name:"Stuffed Toy",type:"PC",category:"PER PIECE",price:50,label:"₱50–₱300/pc"},
+{name:"Rug / Carpet",type:"PC",category:"PER PIECE",price:50,label:"₱50–₱300/pc"},
+{name:"Other",type:"PC",category:"PER PIECE",price:0,label:"Custom price"}
+];
+let orders=JSON.parse(localStorage.getItem(key)||"[]");
+const customerKey="jmmLaundryCustomers";
+let customers=JSON.parse(localStorage.getItem(customerKey)||"[]");
+orders=orders.map(o=>o.items?o:{...o,items:[{name:o.service||"Regular Wash-Dry-Fold",type:"KG",qty:o.kg||1,price:o.price||35,subtotal:o.total||((o.kg||1)*(o.price||35))}],total:o.total||0});
+orders.forEach(o=>{
+  const identity=customerIdentity({name:o.customer,contact:o.contact,address:o.address});
+  if(!customers.some(c=>customerIdentity(c)===identity)){
+    customers.push({id:"CUS-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),name:o.customer||"",contact:o.contact||"",address:o.address||"",createdAt:o.date||new Date().toISOString(),updatedAt:o.date||new Date().toISOString()});
+  }
+});
+localStorage.setItem(customerKey,JSON.stringify(customers));
+const money=n=>"₱"+Number(n||0).toLocaleString("en-PH",{minimumFractionDigits:2,maximumFractionDigits:2});
+const today=()=>new Date().toISOString().slice(0,10);
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+
+function firebaseOrderKey(id){
+  return String(id||"").replace(/[.#$\[\]/]/g,"_");
+}
+
+function syncOrderToCloud(order){
+  if(!firebaseReady||!firebaseDb||!order)return;
+  firebaseDb.ref("pos/orders/"+firebaseOrderKey(order.id)).set(order).catch(e=>console.error("Order sync failed:",e));
+}
+
+function syncCustomerToCloud(customer){
+  if(!firebaseReady||!firebaseDb||!customer)return;
+  firebaseDb.ref("pos/customers/"+firebaseOrderKey(customer.id)).set(customer).catch(e=>console.error("Customer sync failed:",e));
+}
+
+function save(changedOrder=null){
+  localStorage.setItem(key,JSON.stringify(orders));
+  renderAll();
+  if(firebaseReady){
+    if(changedOrder) syncOrderToCloud(changedOrder);
+    else orders.forEach(syncOrderToCloud);
+  }
+}
+function itemOptions(selected=""){return catalog.map(x=>`<option value="${esc(x.name)}" ${x.name===selected?"selected":""}>${esc(x.category)} — ${esc(x.name)} (${x.type}) — ${esc(x.label)}</option>`).join("")}
+function addItem(name="Regular Wash-Dry-Fold",qty=1){
+ const wrap=document.createElement("div");wrap.className="itemrow";
+ const item=catalog.find(x=>x.name===name)||catalog[0];
+ wrap.innerHTML=`<div><label>Service / Item</label><select class="iname">${itemOptions(name)}</select></div><div><label>Qty / KG / PC</label><input class="iqty" type="number" min="0.1" step="0.1" value="${qty}"></div><div><label>Unit</label><input class="itype" value="${item.type}" readonly></div><div><label>Price</label><input class="iprice" type="number" min="0" step="0.01" value="${item.price}"></div><div><label>Subtotal</label><div class="itemsub">₱0.00</div><button type="button" class="remove">Remove</button></div>`;
+ document.getElementById("items").appendChild(wrap);
+ wrap.querySelector(".iname").onchange=()=>{let i=catalog.find(x=>x.name===wrap.querySelector(".iname").value);wrap.querySelector(".itype").value=i.type;wrap.querySelector(".iprice").value=i.price;calcOrder()};
+ wrap.querySelectorAll("input").forEach(i=>i.oninput=calcOrder);
+ wrap.querySelector(".remove").onclick=()=>{wrap.remove();calcOrder()};
+ calcOrder();
+}
+function getItems(){return [...document.querySelectorAll(".itemrow")].map(r=>{let name=r.querySelector(".iname").value,qty=+r.querySelector(".iqty").value||0,price=+r.querySelector(".iprice").value||0;return {name,type:r.querySelector(".itype").value,qty,price,subtotal:qty*price}})}
+function calcOrder(){
+ let items=getItems(),total=items.reduce((s,i)=>s+i.subtotal,0),paid=+document.getElementById("paid").value||0,balance=Math.max(total-paid,0);
+ items.forEach((it,idx)=>{let r=document.querySelectorAll(".itemrow")[idx];if(r)r.querySelector(".itemsub").textContent=money(it.subtotal)});
+ document.getElementById("grandTotal").textContent=money(total);document.getElementById("paidDisplay").textContent=money(paid);document.getElementById("balanceDisplay").textContent=money(balance);return {items,total,paid,balance}
+}
+
+function customerIdentity(c){
+  const contact=(c.contact||"").trim();
+  return contact ? "contact:"+contact : "name:"+((c.name||"").trim().toLowerCase()+"|"+((c.address||"").trim().toLowerCase()));
+}
+function saveCustomers(changedCustomer=null){
+  localStorage.setItem(customerKey,JSON.stringify(customers));
+  if(firebaseReady){
+    if(changedCustomer) syncCustomerToCloud(changedCustomer);
+    else customers.forEach(syncCustomerToCloud);
+  }
+}
+function upsertCustomer(name,contact,address){
+  name=(name||"").trim(); contact=(contact||"").trim(); address=(address||"").trim();
+  if(!name) return;
+  const identity=customerIdentity({name,contact,address});
+  let c=customers.find(x=>customerIdentity(x)===identity);
+  if(c){
+    c.name=name; c.contact=contact; c.address=address; c.updatedAt=new Date().toISOString();
+  }else{
+    c={id:"CUS-"+Date.now(),name,contact,address,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+    customers.push(c);
+  }
+  saveCustomers(c);
+}
+function refreshCustomerSelect(){
+  const sel=document.getElementById("customerSelect");
+  if(!sel) return;
+  const current=sel.value;
+  sel.innerHTML='<option value="">+ New Customer</option>'+customers
+    .slice().sort((a,b)=>a.name.localeCompare(b.name))
+    .map(c=>`<option value="${esc(c.id)}">${esc(c.name)}${c.contact?" — "+esc(c.contact):""}</option>`).join("");
+  if(customers.some(c=>c.id===current)) sel.value=current;
+}
+function fillCustomerFromSelect(){
+  const id=document.getElementById("customerSelect").value;
+  if(!id){
+    document.getElementById("customer").value="";
+    document.getElementById("contact").value="";
+    document.getElementById("address").value="";
+    document.getElementById("customer").focus();
+    return;
+  }
+  const c=customers.find(x=>x.id===id);
+  if(!c) return;
+  document.getElementById("customer").value=c.name||"";
+  document.getElementById("contact").value=c.contact||"";
+  document.getElementById("address").value=c.address||"";
+}
+function renderCustomers(list=customers){
+  const customerCount=document.getElementById("customerCount");
+  const customerOrderCount=document.getElementById("customerOrderCount");
+  const customerPaidTotal=document.getElementById("customerPaidTotal");
+  const customerBalanceTotal=document.getElementById("customerBalanceTotal");
+  if(customerCount) customerCount.textContent=customers.length;
+  if(customerOrderCount) customerOrderCount.textContent=orders.length;
+  if(customerPaidTotal) customerPaidTotal.textContent=money(orders.reduce((s,o)=>s+Number(o.paid||0),0));
+  if(customerBalanceTotal) customerBalanceTotal.textContent=money(orders.reduce((s,o)=>s+Number(o.balance||0),0));
+  const box=document.getElementById("customersTable");
+  if(!box) return;
+  if(!list.length){box.innerHTML='<div class="empty">No customers yet. Customers are added automatically when an order is saved.</div>';return}
+  box.innerHTML=`<table><thead><tr><th>Customer</th><th>Contact</th><th>Address</th><th>Orders</th><th>Total Paid</th><th>Balance</th></tr></thead><tbody>${list.map(c=>{
+    const os=orders.filter(o=>customerIdentity({name:o.customer,contact:o.contact,address:o.address})===customerIdentity(c));
+    return `<tr><td><b>${esc(c.name)}</b></td><td>${esc(c.contact||"")}</td><td>${esc(c.address||"")}</td><td>${os.length}</td><td>${money(os.reduce((s,o)=>s+Number(o.paid||0),0))}</td><td>${money(os.reduce((s,o)=>s+Number(o.balance||0),0))}</td></tr>`;
+  }).join("")}</tbody></table>`;
+}
+
+function openModal(){document.getElementById("orderModal").classList.add("show");refreshCustomerSelect();document.getElementById("customerSelect").value="";document.getElementById("customer").value="";document.getElementById("contact").value="";document.getElementById("address").value="";document.getElementById("releaseDate").value=today();document.getElementById("items").innerHTML="";addItem()}
+function closeModal(){document.getElementById("orderModal").classList.remove("show")}
+document.getElementById("customerSelect").onchange=fillCustomerFromSelect;
+document.getElementById("customerSearch").oninput=e=>{
+  const q=e.target.value.trim().toLowerCase();
+  const filtered=customers.filter(c=>(c.name+" "+(c.contact||"")+" "+(c.address||"")).toLowerCase().includes(q));
+  renderCustomers(filtered);
+};
+document.getElementById("newOrderBtn").onclick=openModal;document.getElementById("quickOrder").onclick=openModal;document.getElementById("closeModal").onclick=closeModal;document.getElementById("cancelOrder").onclick=closeModal;document.getElementById("addItem").onclick=()=>addItem();document.getElementById("paid").oninput=calcOrder;
+document.getElementById("orderForm").onsubmit=e=>{
+e.preventDefault();let c=calcOrder();if(!c.items.length||c.total<=0){alert("Please add at least one laundry item with a price.");return}
+const now=new Date();const order={id:"JMM-"+now.getFullYear()+String(now.getMonth()+1).padStart(2,"0")+String(now.getDate()).padStart(2,"0")+"-"+String(now.getHours()).padStart(2,"0")+String(now.getMinutes()).padStart(2,"0")+String(now.getSeconds()).padStart(2,"0")+"-"+Math.random().toString(36).slice(2,6).toUpperCase(),date:now.toISOString(),customer:document.getElementById("customer").value.trim(),contact:document.getElementById("contact").value.trim(),address:document.getElementById("address").value.trim(),orderType:document.getElementById("orderType").value,releaseDate:document.getElementById("releaseDate").value,items:c.items,total:c.total,paid:c.paid,balance:c.balance,paymentMethod:document.getElementById("paymentMethod").value,status:document.getElementById("status").value};
+orders.unshift(order);upsertCustomer(order.customer,order.contact,order.address);save(order);closeModal();e.target.reset();document.getElementById("items").innerHTML="";refreshCustomerSelect();alert("Order saved: "+order.id);showPage("orders")};
+function itemSummary(o){return o.items.map(i=>`${esc(i.name)} — ${i.qty} ${i.type}`).join("<br>")}
+function tableOrders(list=orders){if(!list.length)return '<div class="empty">No orders yet. Click “New Laundry Order” to create one.</div>';return `<table><thead><tr><th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead><tbody>${list.map(o=>`<tr><td>${esc(o.id)}</td><td>${esc(o.customer)}<br><small>${esc(o.contact)}</small></td><td>${itemSummary(o)}</td><td>${money(o.total)}</td><td>${money(o.paid)}</td><td>${money(o.balance)}</td><td><span class="status ${o.status.toLowerCase()}">${esc(o.status)}</span></td><td><div class="actions" style="display:flex;flex-wrap:wrap;gap:6px;min-width:250px"><button class="btn" type="button" onclick="printReceipt('${esc(o.id)}')">🖨️ Print Receipt</button>${Number(o.balance||0)>0?`<button class="btn" type="button" onclick="collectPayment('${esc(o.id)}')">💰 Collect Payment</button>`:""}<button class="btn" type="button" onclick="previousStatus('${esc(o.id)}')">⬅️ Previous Status</button><button class="btn" type="button" onclick="nextStatus('${esc(o.id)}')">➡️ Next Status</button></div></td></tr>`).join("")}</tbody></table>`}
+function collectPayment(id){
+  const o=orders.find(x=>x.id===id);
+  if(!o){alert("Order not found.");return}
+
+  const balance=Number(o.balance||0);
+
+  if(balance<=0){
+    alert("This order has no outstanding balance.");
+    return;
+  }
+
+  const raw=prompt(
+    `Customer: ${o.customer}\nOrder: ${o.id}\nOutstanding Balance: ${money(balance)}\n\nEnter payment amount:`,
+    ""
+  );
+
+  if(raw===null)return;
+
+  const amount=Number(raw);
+
+  if(!Number.isFinite(amount)||amount<=0){
+    alert("Please enter a valid payment amount.");
+    return;
+  }
+
+  if(amount>balance){
+    alert("Payment cannot be more than the outstanding balance.");
+    return;
+  }
+
+  const method=prompt(
+    "Payment method (Cash / GCash / Bank Transfer / Other):",
+    o.paymentMethod||"Cash"
+  );
+
+  if(method===null)return;
+
+  o.paid=Number(o.paid||0)+amount;
+  o.balance=Math.max(Number(o.total||0)-o.paid,0);
+  o.paymentMethod=method.trim()||"Cash";
+  o.lastPaymentDate=new Date().toISOString();
+
+  save(o);
+
+  alert(
+    `Payment saved.\nPaid: ${money(amount)}\nRemaining Balance: ${money(o.balance)}`
+  );
+}
+function isoDateLocal(d){
+  const x=new Date(d);
+  const y=x.getFullYear(),m=String(x.getMonth()+1).padStart(2,"0"),day=String(x.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+function reportDateRange(){
+  const from=document.getElementById("reportFrom").value;
+  const to=document.getElementById("reportTo").value;
+  return {from:from||"0000-01-01",to:to||"9999-12-31"};
+}
+function renderReport(){
+  const {from,to}=reportDateRange();
+  const filtered=orders.filter(o=>{
+    const d=(o.date||"").slice(0,10);
+    return d>=from && d<=to;
+  });
+  const sales=filtered.reduce((s,o)=>s+Number(o.total||0),0);
+  const collected=filtered.reduce((s,o)=>s+Number(o.paid||0),0);
+  const balance=filtered.reduce((s,o)=>s+Number(o.balance||0),0);
+  const released=filtered.filter(o=>o.status==="Released").length;
+  const pending=filtered.length-released;
+
+  const methods={};
+  filtered.forEach(o=>{const k=o.paymentMethod||"Other";methods[k]=(methods[k]||0)+Number(o.paid||0)});
+
+  const services={};
+  filtered.forEach(o=>(o.items||[]).forEach(i=>{
+    const k=i.name||"Other";
+    services[k]=(services[k]||0)+Number(i.subtotal||0);
+  }));
+
+  const days={};
+  filtered.forEach(o=>{
+    const d=(o.date||"").slice(0,10);
+    if(!days[d]) days[d]={orders:0,sales:0,paid:0,balance:0};
+    days[d].orders++;
+    days[d].sales+=Number(o.total||0);
+    days[d].paid+=Number(o.paid||0);
+    days[d].balance+=Number(o.balance||0);
+  });
+
+  const methodRows=Object.entries(methods).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${money(v)}</td></tr>`).join("");
+  const serviceRows=Object.entries(services).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${money(v)}</td></tr>`).join("");
+  const dayRows=Object.entries(days).sort((a,b)=>b[0].localeCompare(a[0])).map(([d,v])=>`<tr><td>${esc(d)}</td><td>${v.orders}</td><td>${money(v.sales)}</td><td>${money(v.paid)}</td><td>${money(v.balance)}</td></tr>`).join("");
+
+  document.getElementById("reportContent").innerHTML=`
+  <div class="cards" style="margin:15px 0">
+    <div class="card"><small>Orders</small><div class="value">${filtered.length}</div></div>
+    <div class="card"><small>Total Sales</small><div class="value">${money(sales)}</div></div>
+    <div class="card"><small>Total Collected</small><div class="value">${money(collected)}</div></div>
+    <div class="card"><small>Receivable</small><div class="value">${money(balance)}</div></div>
+  </div>
+  <div class="cards" style="margin-bottom:15px">
+    <div class="card"><small>Released Orders</small><div class="value">${released}</div></div>
+    <div class="card"><small>Pending Orders</small><div class="value">${pending}</div></div>
+    <div class="card"><small>Average Order</small><div class="value">${money(filtered.length?sales/filtered.length:0)}</div></div>
+    <div class="card"><small>Collection Rate</small><div class="value">${sales?((collected/sales)*100).toFixed(1):"0.0"}%</div></div>
+  </div>
+  <div class="cards" style="align-items:start">
+    <div class="panel">
+      <h3>💳 Payment Method</h3>
+      ${methodRows?`<table><thead><tr><th>Method</th><th>Collected</th></tr></thead><tbody>${methodRows}</tbody></table>`:'<div class="empty">No payments in this period.</div>'}
+    </div>
+    <div class="panel">
+      <h3>🧺 Sales by Service</h3>
+      ${serviceRows?`<table><thead><tr><th>Service / Item</th><th>Sales</th></tr></thead><tbody>${serviceRows}</tbody></table>`:'<div class="empty">No sales in this period.</div>'}
+    </div>
+  </div>
+  <div class="panel" style="margin-top:15px">
+    <h3>📅 Daily Sales</h3>
+    ${dayRows?`<table><thead><tr><th>Date</th><th>Orders</th><th>Sales</th><th>Collected</th><th>Balance</th></tr></thead><tbody>${dayRows}</tbody></table>`:'<div class="empty">No orders in this period.</div>'}
+  </div>`;
+}
+function setReportRange(type){
+  const now=new Date();
+  const todayStr=isoDateLocal(now);
+  let from=todayStr,to=todayStr;
+  if(type==="7"||type==="30"){
+    const d=new Date(now);
+    d.setDate(d.getDate()-(Number(type)-1));
+    from=isoDateLocal(d);
+  }else if(type==="all"){
+    from=orders.length?orders.map(o=>(o.date||"").slice(0,10)).filter(Boolean).sort()[0]||todayStr:todayStr;
+  }
+  document.getElementById("reportFrom").value=from;
+  document.getElementById("reportTo").value=to;
+  renderReport();
+}
+function printSalesReport(){
+  const {from,to}=reportDateRange();
+  const content=document.getElementById("reportContent").innerHTML;
+  const popup=window.open("","_blank","width=900,height=900");
+  if(!popup){alert("Please allow pop-ups for this site.");return}
+  popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>JMM Home Laundry Sales Report</title><style>
+  *{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#222;padding:20px}h1{text-align:center;margin:0 0 4px}p{text-align:center;margin:4px 0 18px;color:#666}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}.card,.panel{border:1px solid #ddd;padding:12px;border-radius:8px}.value{font-size:20px;font-weight:bold;margin-top:5px}table{width:100%;border-collapse:collapse;margin-top:8px;font-size:11px}th,td{border:1px solid #bbb;padding:6px;text-align:left}h3{margin:0 0 6px;font-size:14px}@media print{@page{size:A4 portrait;margin:10mm}.no-print{display:none}}</style></head><body><h1>JMM HOME LAUNDRY</h1><p>SALES REPORT • ${esc(from)} to ${esc(to)}</p>${content}<script>window.onload=function(){window.print();}<\/script></body></html>`);
+  popup.document.close();
+}
+
+function renderAll(){
+const t=today(),todays=orders.filter(o=>o.date.slice(0,10)===t),pending=orders.filter(o=>o.status!=="Released");document.getElementById("salesValue").textContent=money(todays.reduce((s,o)=>s+o.paid,0));document.getElementById("ordersValue").textContent=todays.length;document.getElementById("pendingValue").textContent=pending.length;document.getElementById("receivableValue").textContent=money(orders.reduce((s,o)=>s+o.balance,0));document.getElementById("recentOrders").innerHTML=tableOrders(orders.slice(0,8));document.getElementById("ordersTable").innerHTML=tableOrders();
+renderCustomers();
+document.getElementById("paymentsTable").innerHTML=orders.length?`<table><thead><tr><th>Date</th><th>Order</th><th>Customer</th><th>Method</th><th>Paid</th><th>Balance</th></tr></thead><tbody>${orders.map(o=>`<tr><td>${o.date.slice(0,10)}</td><td>${esc(o.id)}</td><td>${esc(o.customer)}</td><td>${esc(o.paymentMethod)}</td><td>${money(o.paid)}</td><td>${money(o.balance)}</td></tr>`).join("")}</tbody></table>`:'<div class="empty">No payments yet.</div>';
+setReportRange("today");
+document.getElementById("priceList").innerHTML=catalog.map(x=>`<div class="pricecard"><small>${x.category} • ${x.type}</small><br><b>${esc(x.name)}</b><br>Price: ${esc(x.label)}</div>`).join("");
+}
+function showPage(page){["dashboard","orders","customers","inventory","payments","reports","settings"].forEach(p=>document.getElementById(p+"Page").classList.toggle("hidden",p!==page));document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===page));document.getElementById("pageTitle").textContent=page.charAt(0).toUpperCase()+page.slice(1)}
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>showPage(b.dataset.page));document.querySelectorAll("[data-report-range]").forEach(b=>b.onclick=()=>setReportRange(b.dataset.reportRange));
+document.getElementById("applyReportBtn").onclick=renderReport;
+document.getElementById("printReportBtn").onclick=printSalesReport;
+document.querySelectorAll("[data-page-jump]").forEach(b=>b.onclick=()=>showPage(b.dataset.pageJump));
+document.getElementById("orderSearch").oninput=e=>{let q=e.target.value.toLowerCase();document.getElementById("ordersTable").innerHTML=tableOrders(orders.filter(o=>[o.id,o.customer,o.contact].join(" ").toLowerCase().includes(q)))};
+renderAll();
+
+function showLoginScreen(message=""){
+  document.getElementById("loginOverlay").style.display="flex";
+  const box=document.getElementById("loginError");
+  if(message){box.textContent=message;box.style.display="block";}
+  else{box.style.display="none";}
+}
+
+function hideLoginScreen(){
+  document.getElementById("loginOverlay").style.display="none";
+}
+
+function setLoginBusy(busy){
+  const btn=document.getElementById("loginBtn");
+  const loading=document.getElementById("loginLoading");
+  btn.disabled=busy;
+  btn.textContent=busy?"Signing in...":"Login";
+  loading.style.display=busy?"block":"none";
+}
+
+function startSharedSync(){
+  firebaseAuth.onAuthStateChanged(user=>{
+    // Only Email/Password users may enter the POS.
+    // An existing anonymous Firebase session must not bypass the login screen.
+    if(!user || user.isAnonymous){
+      firebaseReady=false;
+      sharedSyncStarted=false;
+      if(user && user.isAnonymous){
+        firebaseAuth.signOut().catch(()=>{});
+      }
+      showLoginScreen();
+      return;
+    }
+
+    hideLoginScreen();
+
+    if(sharedSyncStarted) return;
+    sharedSyncStarted=true;
+    firebaseReady=true;
+
+    const ordersRef=firebaseDb.ref("pos/orders");
+    const customersRef=firebaseDb.ref("pos/customers");
+
+    // Capture this device's existing local data BEFORE realtime listeners
+    // can replace the arrays with the currently-empty cloud data.
+    const localOrdersSnapshot=orders.slice();
+    const localCustomersSnapshot=customers.slice();
+
+    const syncOrdersPromise=ordersRef.once("value").then(snap=>{
+      const remote=snap.val()||{};
+      const remoteOrders=Object.values(remote);
+      const remoteIds=new Set(remoteOrders.map(o=>String(o.id)));
+
+      const localMissing=localOrdersSnapshot.filter(
+        o=>!remoteIds.has(String(o.id))
+      );
+
+      if(localMissing.length){
+        const updates={};
+        localMissing.forEach(o=>{
+          updates[firebaseOrderKey(o.id)]=o;
+        });
+        return ordersRef.update(updates);
+      }
+    });
+
+    const syncCustomersPromise=customersRef.once("value").then(snap=>{
+      const remote=snap.val()||{};
+      const remoteCustomers=Object.values(remote);
+      const remoteIds=new Set(remoteCustomers.map(c=>String(c.id)));
+
+      const localMissing=localCustomersSnapshot.filter(
+        c=>!remoteIds.has(String(c.id))
+      );
+
+      if(localMissing.length){
+        const updates={};
+        localMissing.forEach(c=>{
+          updates[firebaseOrderKey(c.id)]=c;
+        });
+        return customersRef.update(updates);
+      }
+    });
+
+    // Attach realtime listeners only AFTER the initial local-to-cloud merge.
+    Promise.all([syncOrdersPromise,syncCustomersPromise]).then(()=>{
+      ordersRef.on("value",snap=>{
+        const data=snap.val()||{};
+        orders=Object.values(data).map(o=>
+          o.items ? o : {
+            ...o,
+            items:[{
+              name:o.service||"Regular Wash-Dry-Fold",
+              type:"KG",
+              qty:o.kg||1,
+              price:o.price||35,
+              subtotal:o.total||((o.kg||1)*(o.price||35))
+            }],
+            total:o.total||0
+          }
+        );
+        localStorage.setItem(key,JSON.stringify(orders));
+        renderAll();
+      });
+
+      customersRef.on("value",snap=>{
+        const data=snap.val()||{};
+        customers=Object.values(data);
+        localStorage.setItem(customerKey,JSON.stringify(customers));
+        renderAll();
+        refreshCustomerSelect();
+      });
+    }).catch(e=>{
+      console.error("Initial Firebase sync failed:",e);
+      alert("Firebase connection is active, but the first data sync failed. Please refresh the POS.");
+    });
+  });
+}
+
+document.getElementById("loginForm").onsubmit=async e=>{
+  e.preventDefault();
+  const email=document.getElementById("loginEmail").value.trim();
+  const password=document.getElementById("loginPassword").value;
+  const errorBox=document.getElementById("loginError");
+  errorBox.style.display="none";
+  setLoginBusy(true);
+  try{
+    await firebaseAuth.signInWithEmailAndPassword(email,password);
+    document.getElementById("loginPassword").value="";
+  }catch(err){
+    console.error("Login failed:",err);
+    let message="Login failed. Please check your email and password.";
+    if(err && err.code==="auth/invalid-credential") message="Incorrect email or password.";
+    if(err && err.code==="auth/too-many-requests") message="Too many login attempts. Please wait a while and try again.";
+    errorBox.textContent=message;
+    errorBox.style.display="block";
+  }finally{
+    setLoginBusy(false);
+  }
+};
+
+document.getElementById("logoutBtn").onclick=async()=>{
+  if(!firebaseAuth) return;
+  try{
+    await firebaseAuth.signOut();
+    location.reload();
+  }catch(err){
+    console.error("Logout failed:",err);
+    alert("Logout failed. Please refresh the page.");
+  }
+};
+
+function initFirebase(){
+  try{
+    firebase.initializeApp(firebaseConfig);
+    firebaseAuth=firebase.auth();
+    firebaseDb=firebase.database();
+    startSharedSync();
+  }catch(e){
+    console.error("Firebase initialization failed:",e);
+    alert("Firebase is not configured yet. The POS will continue using this device's local data.");
+  }
+}
+
+// Start Firebase sharing when the POS loads.
+initFirebase();
+
+function printReceipt(id){
+  const o = orders.find(x=>x.id===id);
+  if(!o){ alert("Order not found."); return; }
+
+  const items = (o.items || []).map(i => `
+    <tr>
+      <td>${esc(i.name)}</td>
+      <td class="qty">${esc(String(i.qty))} ${esc(i.type || "")}</td>
+      <td class="money">${money(i.price)}</td>
+      <td class="money">${money(i.subtotal)}</td>
+    </tr>`).join("");
+
+  const popup = window.open("", "_blank", "width=850,height=900");
+  if(!popup){ alert("Please allow pop-ups for this site to print the receipt."); return; }
+
+  popup.document.write(`<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>JMM Home Laundry - ${esc(o.orderNo || "")}</title>
+<style>
+  *{box-sizing:border-box}
+  @page{size:A4 portrait;margin:5mm}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#fff;color:#222}
+  body{font-family:Arial,Helvetica,sans-serif}
+  .page{width:100%;margin:0 auto}
+  .copy{border:1px solid #222;padding:7mm;margin:0 0 4mm 0;page-break-inside:avoid}
+  .head{text-align:center;border-bottom:1px solid #222;padding-bottom:3mm;margin-bottom:3mm}
+  .head h1{margin:0;font-size:18px}
+  .head p{margin:1px 0;font-size:9px}
+  .row{display:flex;justify-content:space-between;gap:10px;margin:2px 0;font-size:9px}
+  table{width:100%;border-collapse:collapse;margin-top:4mm;font-size:8.5px}
+  th,td{border:1px solid #777;padding:3px}
+  th{text-align:left}
+  .qty{text-align:center}
+  .money{text-align:right}
+  .totals{margin-top:3mm;margin-left:auto;width:220px}
+  .totals .row{font-size:9px}
+  .grand{font-size:12px;font-weight:bold;border-top:1px solid #222;padding-top:2px}
+  .claim{text-align:center;margin-top:3mm;font-size:9px;font-weight:bold}
+  .thanks{text-align:center;font-size:8px;margin-top:2mm}
+  .cut{border-top:1px dashed #777;margin:2mm 0}
+  @media print{
+    body{padding:0}
+    .page{width:100%}
+    .copy{page-break-inside:avoid}
+    .no-print{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="copy">
+    <div class="head">
+      <h1>JMM HOME LAUNDRY</h1>
+      <p>LAUNDRY • WASH • DRY • FOLD</p>
+      <p><b>LAUNDRY RECEIPT — CUSTOMER COPY</b></p>
+    </div>
+    <div class="row"><span><b>Order No.:</b> ${esc(o.orderNo || ("JMM-"+o.id))}</span><span><b>Date:</b> ${esc(o.date || "")}</span></div>
+    <div class="row"><span><b>Customer:</b> ${esc(o.customer || "")}</span><span><b>Contact:</b> ${esc(o.contact || "")}</span></div>
+    <div class="row"><span><b>Address:</b> ${esc(o.address || "")}</span><span><b>Type:</b> ${esc(o.orderType || "")}</span></div>
+    <table>
+      <thead><tr><th>Item</th><th style="width:100px">Qty</th><th style="width:100px">Price</th><th style="width:110px">Amount</th></tr></thead>
+      <tbody>${items}</tbody>
+    </table>
+    <div class="totals">
+      <div class="row"><span>Total</span><span>${money(o.total)}</span></div>
+      <div class="row"><span>Paid</span><span>${money(o.paid)}</span></div>
+      <div class="row grand"><span>Balance</span><span>${money(o.balance)}</span></div>
+    </div>
+    <div class="row"><span><b>Expected Release:</b> ${esc(o.releaseDate || "")}</span><span><b>Status:</b> ${esc(o.status || "")}</span></div>
+    <div class="claim">PLEASE PRESENT THIS CLAIM STUB UPON PICK-UP.</div>
+    <div class="thanks">Thank you for choosing JMM Home Laundry!</div>
+  </div>
+
+  <div class="cut"></div>
+
+  <div class="copy">
+    <div class="head">
+      <h1>JMM HOME LAUNDRY</h1>
+      <p><b>LAUNDRY RECEIPT — LAUNDRY / OFFICE COPY</b></p>
+    </div>
+    <div class="row"><span><b>Order No.:</b> ${esc(o.orderNo || ("JMM-"+o.id))}</span><span><b>Date:</b> ${esc(o.date || "")}</span></div>
+    <div class="row"><span><b>Customer:</b> ${esc(o.customer || "")}</span><span><b>Contact:</b> ${esc(o.contact || "")}</span></div>
+    <table>
+      <thead><tr><th>Item</th><th style="width:100px">Qty</th><th style="width:100px">Price</th><th style="width:110px">Amount</th></tr></thead>
+      <tbody>${items}</tbody>
+    </table>
+    <div class="totals">
+      <div class="row"><span>Total</span><span>${money(o.total)}</span></div>
+      <div class="row"><span>Paid</span><span>${money(o.paid)}</span></div>
+      <div class="row grand"><span>Balance</span><span>${money(o.balance)}</span></div>
+    </div>
+    <div class="row"><span><b>Expected Release:</b> ${esc(o.releaseDate || "")}</span><span><b>Status:</b> ${esc(o.status || "")}</span></div>
+  </div>
+</div>
+<script>
+window.onload=function(){ window.print(); };
+<\/script>
+</body></html>`);
+  popup.document.close();
+}
+
+
+function changeStatus(id,direction){
+  const order=orders.find(o=>o.id===id);
+  if(!order) return;
+  const flow=["Received","Washing","Ready","Released"];
+  let i=flow.indexOf(order.status);
+  if(i<0) i=0;
+  const next=Math.max(0,Math.min(flow.length-1,i+direction));
+  if(next!==i){
+    order.status=flow[next];
+    save(order);
+  }
+}
+function previousStatus(id){ changeStatus(id,-1); }
+function nextStatus(id){ changeStatus(id,1); }
+</script>
+</body>
+</html>
